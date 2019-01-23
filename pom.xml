@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.1.1.RELEASE</version>
+    <version>2.1.2.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -22,14 +22,15 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>10</java.version>
 
-    <!-- Apache Common Libraries -->
+    <!-- Apache Common Libraries
     <commons-collection.version>4.1</commons-collection.version>
+    -->
 
     <!-- JSR-305 Annotations (provided by Google) -->
     <jsr305.version>3.0.2</jsr305.version>
 
     <!-- JSON Web Token Libraries -->
-    <jwt.version>3.4.1</jwt.version>
+    <jwt.version>3.5.0</jwt.version>
 
     <!-- MySQL Libraries -->
     <mysql.version>5.1.47</mysql.version>

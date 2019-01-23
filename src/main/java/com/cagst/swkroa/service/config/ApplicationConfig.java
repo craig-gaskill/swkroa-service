@@ -8,15 +8,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 /**
  * Configuration class for some Application components.
  *
  * @author Craig Gaskill
  */
-@Component
+@Configuration
 public class ApplicationConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfig.class);
 

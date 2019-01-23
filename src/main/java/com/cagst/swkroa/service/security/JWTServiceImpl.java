@@ -53,7 +53,7 @@ import org.springframework.stereotype.Service;
     return JWT.create()
         .withSubject(String.valueOf(user.userId()))
         .withIssuedAt(Date.from(now.toInstant()))
-        .withExpiresAt(Date.from(now.plusMinutes(5 * 60).toInstant()))
+        .withExpiresAt(Date.from(now.plusMinutes(5).toInstant()))
         .sign(algorithm);
   }
 
@@ -109,6 +109,7 @@ import org.springframework.stereotype.Service;
     try {
       return jwtVerifier.verify(token);
     } catch (Exception ex) {
+      LOGGER.error("Failed to decode token due to [{}]", ex.getMessage());
       return null;
     }
   }
