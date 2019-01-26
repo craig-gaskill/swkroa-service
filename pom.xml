@@ -26,9 +26,6 @@
     <commons-collection.version>4.1</commons-collection.version>
     -->
 
-    <!-- JSR-305 Annotations (provided by Google) -->
-    <jsr305.version>3.0.2</jsr305.version>
-
     <!-- JSON Web Token Libraries -->
     <jwt.version>3.5.0</jwt.version>
 
@@ -58,13 +55,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-afterburner</artifactId>
-    </dependency>
-
-    <!-- JSR-305 Annotations (provided by Google) -->
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>${jsr305.version}</version>
     </dependency>
 
     <!-- JSR-330 CDI Dependency Injection Annotations  -->

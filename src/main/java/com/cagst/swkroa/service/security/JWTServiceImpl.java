@@ -4,7 +4,6 @@ import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.UUID;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import com.auth0.jwt.JWT;
@@ -16,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 /**

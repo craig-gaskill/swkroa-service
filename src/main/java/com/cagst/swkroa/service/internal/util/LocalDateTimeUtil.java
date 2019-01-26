@@ -8,7 +8,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import javax.annotation.Nullable;
+
+import org.springframework.lang.Nullable;
 
 /**
  * Static convenience methods that help transform to / from a {@link LocalDateTime}.
