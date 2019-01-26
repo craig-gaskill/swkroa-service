@@ -9,6 +9,10 @@ spring:
     hikari:
       maximum-pool-size: 10
 
+server:
+  compression:
+    enabled: true
+
 logging:
   level:
     root: info
