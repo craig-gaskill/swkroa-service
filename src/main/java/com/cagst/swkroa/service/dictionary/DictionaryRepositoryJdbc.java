@@ -36,6 +36,9 @@ import reactor.core.publisher.Mono;
   private static final String INSERT_DICTIONARY_VALUE = "INSERT_DICTIONARY_VALUE";
   private static final String UPDATE_DICTIONARY_VALUE = "UPDATE_DICTIONARY_VALUE";
 
+  private static final DictionaryMapper DICTIONARY_MAPPER = new DictionaryMapper();
+  private static final DictionaryValueMapper DICTIONARY_VALUE_MAPPER = new DictionaryValueMapper();
+
   /**
    * Primary Constructor used to create an instance of the CodeValueRepositoryJdbc.
    *
@@ -54,7 +57,7 @@ import reactor.core.publisher.Mono;
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
     List<Dictionary> dictionaries = getJdbcTemplate().getJdbcOperations()
-        .query(stmtLoader.load(GET_DICTIONARIES), new DictionaryMapper());
+        .query(stmtLoader.load(GET_DICTIONARIES), DICTIONARY_MAPPER);
 
     return Flux.fromIterable(dictionaries);
   }
@@ -68,7 +71,7 @@ import reactor.core.publisher.Mono;
     List<Dictionary> dictionaries = getJdbcTemplate().query(
         stmtLoader.load(GET_DICTIONARY_BY_ID),
         new MapSqlParameterSource("dictionaryId", id),
-        new DictionaryMapper());
+        DICTIONARY_MAPPER);
 
     if (dictionaries.size() == 1) {
       return Mono.just(dictionaries.get(0));
@@ -90,7 +93,7 @@ import reactor.core.publisher.Mono;
     List<Dictionary> dictionaries = getJdbcTemplate().query(
         stmtLoader.load(GET_DICTIONARY_BY_MEANING),
         new MapSqlParameterSource("dictionaryMeaning", dictionaryType.name()),
-        new DictionaryMapper());
+        DICTIONARY_MAPPER);
 
     if (dictionaries.size() == 1) {
       return Mono.just(dictionaries.get(0));
@@ -114,7 +117,7 @@ import reactor.core.publisher.Mono;
     List<DictionaryValue> values = getJdbcTemplate().query(
         stmtLoader.load(GET_VALUES_BY_DICTIONARY_MEANING),
         new MapSqlParameterSource("dictionaryMeaning", dictionaryType.name()),
-        new DictionaryValueMapper());
+        DICTIONARY_VALUE_MAPPER);
 
     return Flux.fromIterable(values);
   }
@@ -133,7 +136,7 @@ import reactor.core.publisher.Mono;
     List<DictionaryValue> values = getJdbcTemplate().query(
         stmtLoader.load(GET_VALUE_BY_ID),
         params,
-        new DictionaryValueMapper());
+        DICTIONARY_VALUE_MAPPER);
 
     if (values.size() == 1) {
       return Mono.just(values.get(0));
