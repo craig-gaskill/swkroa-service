@@ -53,7 +53,7 @@ import reactor.core.publisher.Mono;
   @Override
   public Mono<DictionaryValue> insertDictionaryValue(long userId,
                                                      DictionaryType dictionaryType,
-                                                     DictionaryValue dictionaryValue
+                                                     Mono<DictionaryValue> dictionaryValue
   ) {
     Assert.isTrue(userId > 0, "Argument [userId] must be greater than 0.");
     Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
@@ -69,7 +69,7 @@ import reactor.core.publisher.Mono;
   public Mono<DictionaryValue> updateDictionaryValue(long userId,
                                                      DictionaryType dictionaryType,
                                                      long dictionaryValueId,
-                                                     DictionaryValue dictionaryValue
+                                                     Mono<DictionaryValue> dictionaryValue
   ) {
     Assert.isTrue(userId > 0, "Argument [userId] must be greater than 0.");
     Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");

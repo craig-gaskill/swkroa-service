@@ -74,7 +74,7 @@ public interface DictionaryRepository {
    *
    * @return The {@link DictionaryValue} after it has been persisted.
    */
-  Mono<DictionaryValue> insertDictionaryValue(long userId, long dictionaryId, DictionaryValue dictionaryValue);
+  Mono<DictionaryValue> insertDictionaryValue(long userId, long dictionaryId, Mono<DictionaryValue> dictionaryValue);
 
   /**
    * Updates an existing {@link DictionaryValue} in persistent storage.
@@ -86,5 +86,5 @@ public interface DictionaryRepository {
    *
    * @return The {@link DictionaryValue} after it has been persisted.
    */
-  Mono<DictionaryValue> updateDictionaryValue(long userId, DictionaryValue dictionaryValue);
+  Mono<DictionaryValue> updateDictionaryValue(long userId, Mono<DictionaryValue> dictionaryValue);
 }

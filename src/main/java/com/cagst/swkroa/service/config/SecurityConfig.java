@@ -71,7 +71,7 @@ public class SecurityConfig implements WebFluxConfigurer {
     http.authenticationManager(authenticationManager);
 
     // Allow all routes to '/auth'
-    http.authorizeExchange().pathMatchers("/auth/**").permitAll();
+    http.authorizeExchange().pathMatchers("/auth/login").permitAll();
 
     // Allow OPTIONS
     http.authorizeExchange().pathMatchers(HttpMethod.OPTIONS).permitAll();

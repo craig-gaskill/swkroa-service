@@ -8,9 +8,15 @@ import com.cagst.swkroa.service.security.LoginStatus;
 import com.cagst.swkroa.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +44,17 @@ public class AuthenticationResource {
     this.jwtService  = jwtService;
   }
 
+  /**
+   * The {@code /login} endpoint to authenticate a user by username / password.
+   *
+   * @param loginRequest
+   *    A {@link LoginRequest} that contains the username / password of the User trying to authenticate.
+   * @param request
+   *    The {@link ServerHttpRequest} that initiated the call.
+   *
+   * @return A {@link Mono} containing the {@link LoginResponse} that may contain a JWT access and refresh token
+   * if the authentication was successful, otherwise it will simply contain the Status of why the login failed.
+   */
   @PostMapping("login")
   public Mono<ResponseEntity<LoginResponse>> login(@RequestBody LoginRequest loginRequest,
                                                    ServerHttpRequest request
@@ -74,6 +91,28 @@ public class AuthenticationResource {
         })
         .defaultIfEmpty(new ResponseEntity<>(LoginResponse.builder()
             .loginStatus(LoginStatus.INVALID)
-            .build(), HttpStatus.UNAUTHORIZED));
+            .build(), HttpStatus.UNAUTHORIZED)
+        );
+  }
+
+  /**
+   * The {@code /refresh} endpoint to retrieve a new JWT access token based upon the JWT refresh token.
+   */
+  @GetMapping("refresh")
+  public Mono<ResponseEntity<LoginResponse>> refresh(ServerHttpRequest request) {
+    String authToken = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+
+    return ReactiveSecurityContextHolder.getContext()
+        .map(securityContext -> {
+          return new ResponseEntity<>(LoginResponse.builder()
+              .loginStatus(LoginStatus.EXPIRED)
+              .build(), HttpStatus.UNAUTHORIZED
+          );
+        })
+        .defaultIfEmpty(new ResponseEntity<>(LoginResponse.builder()
+            .loginStatus(LoginStatus.INVALID)
+            .build(), HttpStatus.UNAUTHORIZED)
+        );
+
   }
 }

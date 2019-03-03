@@ -89,20 +89,20 @@ public class DictionaryResource {
    *
    * @param dictionaryType
    *    A {@link DictionaryType} that represents the {@link Dictionary} to insert the {@link DictionaryValue} for.
-   * @param dv
+   * @param dictionaryValue
    *    The {@link DictionaryValue} to insert.
    *
    * @return A JSON representation after the DictionaryValue has been inserted.
    */
   @PostMapping("{dictionaryType}/values")
   public Mono<ResponseEntity<DictionaryValue>> insertDictionaryValue(@PathVariable DictionaryType dictionaryType,
-                                                                     @RequestBody DictionaryValue dv
+                                                                     @RequestBody Mono<DictionaryValue> dictionaryValue
   ) {
-    Assert.notNull(dv, "Argument [dv] cannot be null.");
+    Assert.notNull(dictionaryValue, "Argument [dv] cannot be null.");
 
     LOGGER.debug("Received request to insertDictionaryValue for [{}]", dictionaryType);
 
-    return dictionaryService.insertDictionaryValue(1L, dictionaryType, dv)
+    return dictionaryService.insertDictionaryValue(1L, dictionaryType, dictionaryValue)
         .map(ResponseEntity::ok);
   }
 
@@ -113,7 +113,7 @@ public class DictionaryResource {
    *    A {@link DictionaryType} that represents the {@link Dictionary} to update the {@link DictionaryValue} for.
    * @param id
    *    The unique identifier of the DictionaryValue to update.
-   * @param dv
+   * @param dictionaryValue
    *    The DictionaryValue to update.
    *
    * @return A JSON representation after the DictionaryValue has been updated.
@@ -121,14 +121,14 @@ public class DictionaryResource {
   @PutMapping("{dictionaryType}/values/{id}")
   public Mono<ResponseEntity<DictionaryValue>> updateDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                                      @PathVariable long id,
-                                                                     @RequestBody DictionaryValue dv
+                                                                     @RequestBody Mono<DictionaryValue> dictionaryValue
   ) {
     Assert.isTrue(id > 0, "Argument [id] must be greater than 0.");
-    Assert.notNull(dv, "Argument [dv] cannot be null.");
+    Assert.notNull(dictionaryValue, "Argument [dv] cannot be null.");
 
     LOGGER.debug("Received request to updateDictionaryValue for [{}, {}]", dictionaryType, id);
 
-    return dictionaryService.updateDictionaryValue(1L, dictionaryType, id, dv)
+    return dictionaryService.updateDictionaryValue(1L, dictionaryType, id, dictionaryValue)
         .map(ResponseEntity::ok)
         .defaultIfEmpty(ResponseEntity.notFound().build());
   }

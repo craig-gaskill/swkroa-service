@@ -150,49 +150,53 @@ import reactor.core.publisher.Mono;
   }
 
   @Override
-  public Mono<DictionaryValue> insertDictionaryValue(long userId, long dictionaryId, DictionaryValue dictionaryValue) {
+  public Mono<DictionaryValue> insertDictionaryValue(long userId, long dictionaryId, Mono<DictionaryValue> dictionaryValue) {
     Assert.notNull(dictionaryValue, "Argument dictionaryValue cannot be null.");
 
-    LOGGER.debug("Calling insertDictionaryValue for [{}]", dictionaryValue.display());
+    return dictionaryValue.flatMap(dv -> {
+      LOGGER.debug("Calling insertDictionaryValue for [{}]", dv.display());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
-    KeyHolder keyHolder = new GeneratedKeyHolder();
+      StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+      KeyHolder keyHolder = new GeneratedKeyHolder();
 
-    int cnt = getJdbcTemplate().update(
-        stmtLoader.load(INSERT_DICTIONARY_VALUE),
-        DictionaryValueMapper.mapInsertStatement(userId, dictionaryId, dictionaryValue),
-        keyHolder);
+      int cnt = getJdbcTemplate().update(
+          stmtLoader.load(INSERT_DICTIONARY_VALUE),
+          DictionaryValueMapper.mapInsertStatement(userId, dictionaryId, dv),
+          keyHolder);
 
-    if (cnt != 1) {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
+      if (cnt != 1) {
+        throw new IncorrectResultSizeDataAccessException(1, cnt);
+      }
 
-    return Mono.just(dictionaryValue.toBuilder()
-        .dictionaryValueId(keyHolder.getKey().longValue())
-        .build());
+      return Mono.just(dv.toBuilder()
+          .dictionaryValueId(keyHolder.getKey().longValue())
+          .build());
+    });
   }
 
   @Override
-  public Mono<DictionaryValue> updateDictionaryValue(long userId, DictionaryValue dictionaryValue) {
+  public Mono<DictionaryValue> updateDictionaryValue(long userId, Mono<DictionaryValue> dictionaryValue) {
     Assert.notNull(dictionaryValue, "Argument dictionaryValue cannot be null.");
 
-    LOGGER.debug("Calling updateDictionaryValue for [{}]", dictionaryValue.display());
+    return dictionaryValue.flatMap(dv -> {
+      LOGGER.debug("Calling updateDictionaryValue for [{}]", dv.display());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+      StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    int cnt = getJdbcTemplate().update(
-        stmtLoader.load(UPDATE_DICTIONARY_VALUE),
-        DictionaryValueMapper.mapUpdateStatement(userId, dictionaryValue));
+      int cnt = getJdbcTemplate().update(
+          stmtLoader.load(UPDATE_DICTIONARY_VALUE),
+          DictionaryValueMapper.mapUpdateStatement(userId, dv));
 
-    if (cnt == 1) {
-      return Mono.just(dictionaryValue.toBuilder()
-          .updateCount(dictionaryValue.updateCount() + 1)
-          .build());
-    } else if (cnt == 0) {
-      throw new OptimisticLockingFailureException("invalid update count of [" + cnt
-          + "] possible update count mismatch");
-    } else {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
+      if (cnt == 1) {
+        return Mono.just(dv.toBuilder()
+            .updateCount(dv.updateCount() + 1)
+            .build());
+      } else if (cnt == 0) {
+        throw new OptimisticLockingFailureException("invalid update count of [" + cnt
+            + "] possible update count mismatch");
+      } else {
+        throw new IncorrectResultSizeDataAccessException(1, cnt);
+      }
+    });
   }
 }
