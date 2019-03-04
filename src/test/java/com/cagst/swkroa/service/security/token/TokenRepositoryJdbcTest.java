@@ -34,15 +34,15 @@ class TokenRepositoryJdbcTest extends BaseTestRepository {
     @Test
     @DisplayName("should return false when the token is invalid")
     void testInvalid() {
-      boolean valid = repo.isTokenValid(11, "20249447-9960-4613-8fa8-86ee91785be0");
-      assertFalse(valid, "Ensure the result is invalid");
+      repo.isTokenValid(11, "20249447-9960-4613-8fa8-86ee91785be0")
+          .subscribe(result -> assertFalse(result, "Ensure the result is invalid"));
     }
 
     @Test
     @DisplayName("should return true when the token is valid")
     void testValid() {
-      boolean valid = repo.isTokenValid(11, "ec3981aa-f8a8-422d-a0b5-e389510ed63d");
-      assertTrue(valid, "Ensure the result is valid");
+      repo.isTokenValid(11, "ec3981aa-f8a8-422d-a0b5-e389510ed63d")
+          .subscribe(result -> assertTrue(result, "Ensure the result is valid"));
     }
   }
 

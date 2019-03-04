@@ -12,7 +12,6 @@ import com.cagst.swkroa.service.security.token.TokenRepository;
 import com.cagst.swkroa.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -113,9 +112,7 @@ public class AuthenticationResource {
    * The {@code /refresh} endpoint to retrieve a new JWT access token based upon the JWT refresh token.
    */
   @GetMapping("refresh")
-  public Mono<ResponseEntity<LoginResponse>> refresh(ServerHttpRequest request) {
-    String authToken = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
+  public Mono<ResponseEntity<LoginResponse>> refresh(@RequestBody String refreshToken) {
     return ReactiveSecurityContextHolder.getContext()
         .map(securityContext -> {
           return new ResponseEntity<>(LoginResponse.builder()

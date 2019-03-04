@@ -1,5 +1,7 @@
 package com.cagst.swkroa.service.security.token;
 
+import reactor.core.publisher.Mono;
+
 /**
  * Interface for retrieving / saving {@link Token} from / to persistent storage.
  *
@@ -16,7 +18,7 @@ public interface TokenRepository {
    *
    * @return {@code true} if the token is valid, {@code false} otherwise.
    */
-  boolean isTokenValid(long userId, String token);
+  Mono<Boolean> isTokenValid(long userId, String token);
 
   /**
    * Inserts a new {@link Token} into persistent storage.

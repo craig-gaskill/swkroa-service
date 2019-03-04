@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
 /**
  * JDBC implementation of the {@link TokenRepository} interface.
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Repository;
   }
 
   @Override
-  public boolean isTokenValid(long userId, String token) {
+  public Mono<Boolean> isTokenValid(long userId, String token) {
     LOGGER.debug("Calling isTokenValid for [{}, {}]", userId, token);
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
@@ -47,7 +48,7 @@ import org.springframework.stereotype.Repository;
     params.addValue("user_id", userId);
 
     Long cnt = getJdbcTemplate().queryForObject(stmtLoader.load(IS_TOKEN_VALID), params, Long.class);
-    return (cnt != null && cnt != 0);
+    return Mono.just(cnt != null && cnt != 0);
   }
 
   @Override
