@@ -19,7 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * JDBC Template implementation of the {@link DictionaryRepository} interface.
+ * JDBC implementation of the {@link DictionaryRepository} interface.
  *
  * @author Craig Gaskill
  */
@@ -40,7 +40,7 @@ import reactor.core.publisher.Mono;
   private static final DictionaryValueMapper DICTIONARY_VALUE_MAPPER = new DictionaryValueMapper();
 
   /**
-   * Primary Constructor used to create an instance of the CodeValueRepositoryJdbc.
+   * Primary Constructor used to create an instance of the <i>DictionaryRepositoryJdbc</i>.
    *
    * @param dataSource
    *     The {@link DataSource} used to retrieve / persist data objects.
@@ -56,10 +56,7 @@ import reactor.core.publisher.Mono;
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    List<Dictionary> dictionaries = getJdbcTemplate().getJdbcOperations()
-        .query(stmtLoader.load(GET_DICTIONARIES), DICTIONARY_MAPPER);
-
-    return Flux.fromIterable(dictionaries);
+    return Flux.fromIterable(getJdbcTemplate().query(stmtLoader.load(GET_DICTIONARIES), DICTIONARY_MAPPER));
   }
 
   @Override

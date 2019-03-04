@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.Optional;
 
 import com.cagst.swkroa.service.internal.jdbc.BaseTestRepository;
+import com.cagst.swkroa.service.internal.jdbc.StatementDialect;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +32,7 @@ class DictionaryRepositoryJdbcTest extends BaseTestRepository {
   @BeforeEach
   void setUp() {
     repo = new DictionaryRepositoryJdbc(createTestDataSource());
+    repo.setStatementDialect(StatementDialect.HSQLDB);
   }
 
   @Nested

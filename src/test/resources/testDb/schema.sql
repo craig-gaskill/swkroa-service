@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS membership_county;
 DROP TABLE IF EXISTS membership;
 DROP TABLE IF EXISTS codevalue;
 DROP TABLE IF EXISTS codeset;
+DROP TABLE IF EXISTS token;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS email;
 DROP TABLE IF EXISTS phone;
@@ -145,6 +146,15 @@ CREATE TABLE user (
   updt_id                   BIGINT NOT NULL,
   updt_cnt                  INT DEFAULT 0 NOT NULL,
   CONSTRAINT user_fk1 FOREIGN KEY (person_id) REFERENCES person (person_id)
+);
+
+CREATE TABLE token (
+  token_ident  BINARY(16) NOT NULL,
+  user_id      BIGINT NOT NULL,
+  expiry_dt_tm DATETIME NOT NULL,
+  active_ind   BOOLEAN DEFAULT 1 NOT NULL,
+  CONSTRAINT token_pk PRIMARY KEY (token_ident),
+  CONSTRAINT token_user_fk FOREIGN KEY (user_id) REFERENCES user (user_id)
 );
 
 CREATE TABLE codeset (

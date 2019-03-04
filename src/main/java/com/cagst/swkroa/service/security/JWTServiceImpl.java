@@ -1,9 +1,7 @@
 package com.cagst.swkroa.service.security;
 
-import java.time.Clock;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.Date;
-import java.util.UUID;
 import javax.inject.Inject;
 
 import com.auth0.jwt.JWT;
@@ -37,44 +35,11 @@ import org.springframework.stereotype.Service;
     this.jwtVerifier = JWT.require(algorithm).build();
   }
 
-  /**
-   * Generates an access token for the specified User.
-   *
-   * @param user
-   *     The {@link User} the Token is to be generated for.
-   *
-   * @return A String representation of a JWT for the specified User.
-   */
   @Override
-  public String generateAccessToken(User user) {
-    // get the current date/time (in UTC)
-    ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
-
+  public String generateAccessToken(User user, OffsetDateTime expiryDateTime) {
     return JWT.create()
         .withSubject(String.valueOf(user.userId()))
-        .withIssuedAt(Date.from(now.toInstant()))
-        .withExpiresAt(Date.from(now.plusMinutes(5).toInstant()))
-        .sign(algorithm);
-  }
-
-  /**
-   * Generates a refresh token for the specified User.
-   *
-   * @param user
-   *     The {@link User} the Token is to be generated for.
-   *
-   * @return A String representation of a JWT for the specified User.
-   */
-  @Override
-  public String generateRefreshToken(User user) {
-    // get the current date/time (in UTC)
-    ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
-
-    return JWT.create()
-        .withJWTId(UUID.randomUUID().toString())
-        .withSubject(String.valueOf(user.userId()))
-        .withIssuedAt(Date.from(now.toInstant()))
-        .withExpiresAt(Date.from(now.plusMinutes(15).toInstant()))
+        .withExpiresAt(Date.from(expiryDateTime.toInstant()))
         .sign(algorithm);
   }
 

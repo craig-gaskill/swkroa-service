@@ -1,10 +1,14 @@
 package com.cagst.swkroa.service.authenticate;
 
 import java.net.InetSocketAddress;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 import javax.inject.Inject;
 
 import com.cagst.swkroa.service.security.JWTService;
 import com.cagst.swkroa.service.security.LoginStatus;
+import com.cagst.swkroa.service.security.token.Token;
+import com.cagst.swkroa.service.security.token.TokenRepository;
 import com.cagst.swkroa.service.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,14 +35,17 @@ public class AuthenticationResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationResource.class);
 
   private final UserService userService;
+  private final TokenRepository tokenRepository;
   private final JWTService jwtService;
 
   @Inject
   public AuthenticationResource(UserService userService,
+                                TokenRepository tokenRepository,
                                 JWTService jwtService
   ) {
-    this.userService = userService;
-    this.jwtService  = jwtService;
+    this.userService     = userService;
+    this.tokenRepository = tokenRepository;
+    this.jwtService      = jwtService;
   }
 
   /**
@@ -82,10 +86,20 @@ public class AuthenticationResource {
                 .loginStatus(LoginStatus.EXPIRED)
                 .build(), HttpStatus.UNAUTHORIZED);
           } else {
+            OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(5);
+
+            Token refreshToken = Token.builder()
+                .token(UUID.randomUUID())
+                .userId(user.userId())
+                .expiryDateTime(expiryDateTime.plusMinutes(10))
+                .build();
+
+            tokenRepository.insertToken(refreshToken);
+
             return ResponseEntity.ok(LoginResponse.builder()
                 .loginStatus(user.temporary() ? LoginStatus.TEMPORARY : LoginStatus.VALID)
-                .accessToken(jwtService.generateAccessToken(user))
-                .refreshToken(jwtService.generateRefreshToken(user))
+                .accessToken(jwtService.generateAccessToken(user, expiryDateTime))
+                .refreshToken(refreshToken.token().toString())
                 .build());
           }
         })

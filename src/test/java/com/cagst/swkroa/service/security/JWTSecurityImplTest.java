@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.OffsetDateTime;
+
 import com.cagst.swkroa.service.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +26,9 @@ class JWTSecurityImplTest {
   @Test
   @DisplayName("should create and verify a Token")
   void testCreateAndVerify() {
-    String token = jwtService.generateAccessToken(User.builder().userId(1L).build());
+    OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(15);
+
+    String token = jwtService.generateAccessToken(User.builder().userId(1L).build(), expiryDateTime);
     assertAll("Ensure the token",
         () -> assertNotNull(token, "exists"),
         () -> assertFalse(token.isEmpty(), "is not empty"));

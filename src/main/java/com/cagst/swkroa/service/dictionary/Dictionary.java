@@ -8,7 +8,7 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 
 /**
- * Represents a Dictionary within the system.
+ * Represents a Dictionary.
  *
  * @author Craig Gaskill
  */

@@ -1,5 +1,7 @@
 package com.cagst.swkroa.service.security;
 
+import java.time.OffsetDateTime;
+
 import com.cagst.swkroa.service.user.User;
 
 /**
@@ -13,20 +15,12 @@ public interface JWTService {
    *
    * @param user
    *     The {@link User} the Token is to be generated for.
+   * @param expiryDateTime
+   *    The {@link OffsetDateTime} the token will expire.
    *
    * @return A String representation of a JWT for the specified User.
    */
-  String generateAccessToken(User user);
-
-  /**
-   * Generates a refresh token for the specified User.
-   *
-   * @param user
-   *     The {@link User} the Token is to be generated for.
-   *
-   * @return A String representation of a JWT for the specified User.
-   */
-  String generateRefreshToken(User user);
+  String generateAccessToken(User user, OffsetDateTime expiryDateTime);
 
   /**
    * Will check the specified token to determine if it is valid or not.
