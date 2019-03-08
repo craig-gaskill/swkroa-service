@@ -13,26 +13,34 @@ public interface TokenRepository {
    *
    * @param userId
    *    The unique identifier of the User to see if the token is valid for.
-   * @param token
+   * @param tokenIdent
    *    The token to check for validity on.
    *
    * @return {@code true} if the token is valid, {@code false} otherwise.
    */
-  Mono<Token> findToken(long userId, String token);
+  Mono<Token> findTokenByIdent(long userId, String tokenIdent);
 
   /**
    * Inserts a new {@link Token} into persistent storage.
    *
+   * @param userId
+   *    The unique identifier of the User inserting the Token
    * @param token
    *    The {@link Token} to persist.
+   *
+   * @return The {@link Token} after it has been persisted.
    */
-  void insertToken(Token token);
+  Mono<Token> insertToken(long userId, Token token);
 
   /**
    * Updates the {@link Token} in persistent storage.
    *
+   * @param userId
+   *    The unique identifier of the User updating the Token
    * @param token
    *    The {@link Token} to update.
+   *
+   * @return The {@link Token} after it has been persisted.
    */
-  void updateToken(Token token);
+  Mono<Token> updateToken(long userId, Token token);
 }

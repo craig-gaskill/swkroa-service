@@ -1,4 +1,5 @@
 CREATE TABLE token (
+  token_id     BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   token_ident  BINARY(16) NOT NULL,
   user_id      BIGINT UNSIGNED NOT NULL,
   expiry_dt_tm DATETIME NOT NULL,
@@ -9,6 +10,7 @@ CREATE TABLE token (
   updt_dt_tm   DATETIME NOT NULL,
   updt_id      BIGINT NOT NULL,
   updt_cnt     INT DEFAULT 0 NOT NULL,
-  CONSTRAINT token_pk PRIMARY KEY (token_ident),
-  CONSTRAINT token_user_fk FOREIGN KEY (user_id) REFERENCES user (user_id)
+  CONSTRAINT token_pk PRIMARY KEY (token_id),
+  CONSTRAINT token_user_fk FOREIGN KEY (user_id) REFERENCES user (user_id),
+  INDEX token_ident_idx (token_ident)
 ) ENGINE = InnoDb;

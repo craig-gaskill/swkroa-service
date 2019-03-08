@@ -47,6 +47,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
    */
   static MapSqlParameterSource mapForInsert(long userId, long dictionaryId, DictionaryValue dictionaryValue) {
     MapSqlParameterSource params = mapCommonParameters(userId, dictionaryValue);
+
     params.addValue(DICTIONARY_ID, dictionaryId);
     params.addValue(CREATE_ID, userId);
 
@@ -65,6 +66,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
    */
   static MapSqlParameterSource mapForUpdate(long userId, DictionaryValue dictionaryValue) {
     MapSqlParameterSource params = mapCommonParameters(userId, dictionaryValue);
+
     params.addValue(DICTIONARY_VALUE_ID, dictionaryValue.dictionaryValueId());
     params.addValue(UPDATE_CNT, dictionaryValue.updateCount());
 

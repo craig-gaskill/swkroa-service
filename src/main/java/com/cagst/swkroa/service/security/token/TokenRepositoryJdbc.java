@@ -9,7 +9,11 @@ import com.cagst.swkroa.service.internal.jdbc.StatementLoader;
 import com.cagst.swkroa.service.util.UuidAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +26,8 @@ import reactor.core.publisher.Mono;
 /* package */ class TokenRepositoryJdbc extends BaseRepositoryJdbc implements TokenRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenRepositoryJdbc.class);
 
-  private static final String FIND_TOKEN   = "FIND_TOKEN";
+  private static final String FIND_TOKEN_BY_IDENT = "FIND_TOKEN_BY_IDENT";
+
   private static final String INSERT_TOKEN = "INSERT_TOKEN";
   private static final String UPDATE_TOKEN = "UPDATE_TOKEN";
 
@@ -39,18 +44,18 @@ import reactor.core.publisher.Mono;
   }
 
   @Override
-  public Mono<Token> findToken(long userId, String token) {
-    LOGGER.debug("Calling findToken for [{}, {}]", userId, token);
+  public Mono<Token> findTokenByIdent(long userId, String tokenIdent) {
+    LOGGER.debug("Calling findTokenByIdent for [{}, {}]", userId, tokenIdent);
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    UUID uuid = UUID.fromString(token);
+    UUID uuid = UUID.fromString(tokenIdent);
 
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("token_ident", UuidAdapter.convert(uuid));
     params.addValue("user_id", userId);
 
-    List<Token> tokens = getJdbcTemplate().query(stmtLoader.load(FIND_TOKEN), params, TOKEN_MAPPER);
+    List<Token> tokens = getJdbcTemplate().query(stmtLoader.load(FIND_TOKEN_BY_IDENT), params, TOKEN_MAPPER);
     if (tokens != null && tokens.size() == 1) {
       return Mono.just(tokens.get(0));
     } else {
@@ -59,18 +64,45 @@ import reactor.core.publisher.Mono;
   }
 
   @Override
-  public void insertToken(Token token) {
-    LOGGER.debug("Calling insertToken for [{}]", token.token());
+  public Mono<Token> insertToken(long userId, Token token) {
+    LOGGER.debug("Calling insertToken for [{}]", token.tokenIdent());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
-    getJdbcTemplate().update(stmtLoader.load(INSERT_TOKEN), TokenMapper.mapForInsert(token));
+    KeyHolder keyHolder = new GeneratedKeyHolder();
+
+    int cnt = getJdbcTemplate().update(
+        stmtLoader.load(INSERT_TOKEN),
+        TokenMapper.mapForInsert(userId, token),
+        keyHolder);
+
+    if (cnt != 1) {
+      throw new IncorrectResultSizeDataAccessException(1, cnt);
+    }
+
+    return Mono.just(token.toBuilder()
+        .tokenId(keyHolder.getKey().longValue())
+        .build());
   }
 
   @Override
-  public void updateToken(Token token) {
-    LOGGER.debug("Calling updateToken for [{}]", token.token());
+  public Mono<Token> updateToken(long userId, Token token) {
+    LOGGER.debug("Calling updateToken for [{}]", token.tokenIdent());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
-    getJdbcTemplate().update(stmtLoader.load(UPDATE_TOKEN), TokenMapper.mapForUpdate(token));
+
+    int cnt = getJdbcTemplate().update(
+        stmtLoader.load(UPDATE_TOKEN),
+        TokenMapper.mapForUpdate(userId, token));
+
+    if (cnt == 1) {
+      return Mono.just(token.toBuilder()
+          .updateCount(token.updateCount() + 1)
+          .build());
+    } else if (cnt == 0) {
+      throw new OptimisticLockingFailureException("invalid update count of [" + cnt
+          + "] possible update count mismatch");
+    } else {
+      throw new IncorrectResultSizeDataAccessException(1, cnt);
+    }
   }
 }

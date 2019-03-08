@@ -101,9 +101,9 @@ public class AuthenticationResource {
   public Mono<ResponseEntity<LoginResponse>> refresh(@RequestBody String refreshToken) {
     return ReactiveSecurityContextHolder.getContext()
         .map(securityContext -> Long.valueOf(securityContext.getAuthentication().getPrincipal().toString()))
-        .flatMap(userId -> tokenRepository.findToken(userId, refreshToken)
+        .flatMap(userId -> tokenRepository.findTokenByIdent(userId, refreshToken)
             .map(token -> {
-              tokenRepository.updateToken(token.toBuilder().used(true).build());
+              tokenRepository.updateToken(userId, token.toBuilder().used(true).build());
                 return generateResponse(LoginStatus.VALID, userId, false);
             })
             .defaultIfEmpty(generateResponse(LoginStatus.INVALID, null, null))
@@ -121,17 +121,17 @@ public class AuthenticationResource {
         OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(ACCESS_EXPIRY_IN_MINUTES);
 
         Token refreshToken = Token.builder()
-            .token(UUID.randomUUID())
+            .tokenIdent(UUID.randomUUID())
             .userId(userId)
             .expiryDateTime(expiryDateTime.plusMinutes(REFRESH_EXPIRY_IN_MINUTES))
             .build();
 
-        tokenRepository.insertToken(refreshToken);
+        tokenRepository.insertToken(userId, refreshToken);
 
         return ResponseEntity.ok(LoginResponse.builder()
             .loginStatus(BooleanUtils.toBoolean(temporary) ? LoginStatus.TEMPORARY : LoginStatus.VALID)
             .accessToken(jwtService.generateAccessToken(userId, expiryDateTime))
-            .refreshToken(refreshToken.token().toString())
+            .refreshToken(refreshToken.tokenIdent().toString())
             .build());
       }
 

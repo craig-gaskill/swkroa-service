@@ -16,7 +16,8 @@ import lombok.experimental.Accessors;
  * @author Craig Gaskill
  */
 @JsonPropertyOrder({
-    "token",
+    "tokenId",
+    "tokenIdent",
     "userId",
     "expiryDtTm",
     "used",
@@ -28,8 +29,11 @@ import lombok.experimental.Accessors;
 @Builder(toBuilder = true)
 @JsonDeserialize(builder = Token.TokenBuilder.class)
 public class Token {
-  @JsonProperty("token")
-  private UUID token;
+  @JsonProperty("tokenId")
+  private Long tokenId;
+
+  @JsonProperty("tokenIdent")
+  private UUID tokenIdent;
 
   @JsonProperty("userId")
   private Long userId;

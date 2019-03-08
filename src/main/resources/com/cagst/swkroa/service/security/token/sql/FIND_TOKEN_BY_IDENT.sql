@@ -1,4 +1,5 @@
-SELECT token_ident
+SELECT token_id
+      ,token_ident
       ,user_id
       ,expiry_dt_tm
       ,used_ind
