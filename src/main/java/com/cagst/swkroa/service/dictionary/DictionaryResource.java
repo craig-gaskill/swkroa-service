@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,6 +95,7 @@ public class DictionaryResource {
    *
    * @return A JSON representation after the DictionaryValue has been inserted.
    */
+  @Transactional
   @PostMapping("{dictionaryType}/values")
   public Mono<ResponseEntity<DictionaryValue>> insertDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                                      @RequestBody Mono<DictionaryValue> dictionaryValue
@@ -118,6 +120,7 @@ public class DictionaryResource {
    *
    * @return A JSON representation after the DictionaryValue has been updated.
    */
+  @Transactional
   @PutMapping("{dictionaryType}/values/{id}")
   public Mono<ResponseEntity<DictionaryValue>> updateDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                                      @PathVariable long id,
@@ -141,6 +144,7 @@ public class DictionaryResource {
    * @param id
    *    The unique identifier of the DictionaryValue to delete.
    */
+  @Transactional
   @DeleteMapping("{dictionaryType}/values/{id}")
   public Mono<ResponseEntity<Void>> deleteDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                           @PathVariable long id

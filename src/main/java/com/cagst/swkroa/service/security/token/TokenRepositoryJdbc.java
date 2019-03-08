@@ -47,7 +47,7 @@ import reactor.core.publisher.Mono;
     UUID uuid = UUID.fromString(token);
 
     MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("token", UuidAdapter.convert(uuid));
+    params.addValue("token_ident", UuidAdapter.convert(uuid));
     params.addValue("user_id", userId);
 
     List<Token> tokens = getJdbcTemplate().query(stmtLoader.load(FIND_TOKEN), params, TOKEN_MAPPER);
@@ -71,6 +71,6 @@ import reactor.core.publisher.Mono;
     LOGGER.debug("Calling updateToken for [{}]", token.token());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
-    getJdbcTemplate().update(stmtLoader.load(INSERT_TOKEN), TokenMapper.mapForUpdate(token));
+    getJdbcTemplate().update(stmtLoader.load(UPDATE_TOKEN), TokenMapper.mapForUpdate(token));
   }
 }

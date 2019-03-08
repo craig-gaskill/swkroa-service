@@ -20,7 +20,8 @@ import lombok.experimental.Accessors;
     "userId",
     "expiryDtTm",
     "used",
-    "active"
+    "active",
+    "updateCount"
 })
 @Value
 @Accessors(fluent = true)
@@ -43,4 +44,8 @@ public class Token {
   @JsonProperty("active")
   @Builder.Default
   private boolean active = true;
+
+  @JsonProperty("updateCount")
+  @Builder.Default
+  private long updateCount = 0L;
 }

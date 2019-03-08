@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,6 +62,7 @@ public class AuthenticationResource {
    * @return A {@link Mono} containing the {@link LoginResponse} that may contain a JWT access and refresh token
    * if the authentication was successful, otherwise it will simply contain the Status of why the login failed.
    */
+  @Transactional
   @PostMapping("login")
   public Mono<ResponseEntity<LoginResponse>> login(@RequestBody LoginRequest loginRequest,
                                                    ServerHttpRequest request
@@ -95,10 +96,11 @@ public class AuthenticationResource {
   /**
    * The {@code /refresh} endpoint to retrieve a new JWT access token based upon the JWT refresh token.
    */
-  @GetMapping("refresh")
+  @Transactional
+  @PostMapping("refresh")
   public Mono<ResponseEntity<LoginResponse>> refresh(@RequestBody String refreshToken) {
     return ReactiveSecurityContextHolder.getContext()
-        .map(securityContext -> (long)securityContext.getAuthentication().getPrincipal())
+        .map(securityContext -> Long.valueOf(securityContext.getAuthentication().getPrincipal().toString()))
         .flatMap(userId -> tokenRepository.findToken(userId, refreshToken)
             .map(token -> {
               tokenRepository.updateToken(token.toBuilder().used(true).build());

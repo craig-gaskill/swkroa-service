@@ -74,8 +74,8 @@ INSERT INTO user (user_id, person_id, username, password, temporary_pwd_ind, act
 
 INSERT INTO user_role (user_id, role_id, create_id, create_dt_tm, updt_id, updt_dt_tm) VALUES (12, 1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP);
 
-INSERT INTO token (token_ident, user_id, expiry_dt_tm, active_ind) VALUES (HEXTORAW('20249447996046138fa886ee91785be0'), 11, CURRENT_TIMESTAMP, 1);
-INSERT INTO token (token_ident, user_id, expiry_dt_tm, active_ind) VALUES (HEXTORAW('ec3981aaf8a8422da0b5e389510ed63d'), 11, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE ), 1);
+INSERT INTO token (token_ident, user_id, expiry_dt_tm, active_ind, create_id, create_dt_tm, updt_id, updt_dt_tm) VALUES (HEXTORAW('20249447996046138fa886ee91785be0'), 11, CURRENT_TIMESTAMP, 1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP);
+INSERT INTO token (token_ident, user_id, expiry_dt_tm, active_ind, create_id, create_dt_tm, updt_id, updt_dt_tm) VALUES (HEXTORAW('ec3981aaf8a8422da0b5e389510ed63d'), 11, DATE_ADD(CURRENT_TIMESTAMP, INTERVAL 15 MINUTE ), 1, 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP);
 
 INSERT INTO address (parent_entity_id, parent_entity_name, address_type_cd, address1, city, state_code, postal_code, country_code, create_id, create_dt_tm, updt_id, updt_dt_tm) VALUES (1, 'MEMBER', 1, '23824 W 124th Court', 'Olathe', 'KS', '66061', 'US', 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP);
 INSERT INTO address (parent_entity_id, parent_entity_name, address_type_cd, address1, address2, city, state_code, postal_code, country_code, create_id, create_dt_tm, updt_id, updt_dt_tm) VALUES (1, 'MEMBER', 2, '33017 Hwy 160', 'Cabin 3', 'South Fork', 'CO', '12345', 'US', 1, CURRENT_TIMESTAMP, 1, CURRENT_TIMESTAMP);

@@ -20,7 +20,12 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
   private static final String USER_ID      = "user_id";
   private static final String EXPIRY_DT_TM = "expiry_dt_tm";
   private static final String USED_IND     = "used_ind";
+
+  // meta-data
   private static final String ACTIVE_IND   = "active_ind";
+  private static final String CREATE_ID    = "create_id";
+  private static final String UPDATE_ID    = "updt_id";
+  private static final String UPDATE_CNT   = "updt_cnt";
 
   @Override
   public Token mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -30,6 +35,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
         .expiryDateTime(rs.getTimestamp(EXPIRY_DT_TM).toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime())
         .used(rs.getBoolean(USED_IND))
         .active(rs.getBoolean(ACTIVE_IND))
+        .updateCount(rs.getLong(UPDATE_CNT))
         .build();
   }
 
@@ -42,7 +48,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
    * @return A {@link MapSqlParameterSource} that can be used in a {@code jdbcTemplate.update} statement.
    */
   static MapSqlParameterSource mapForInsert(Token token) {
-    return mapCommonParameters(token);
+    MapSqlParameterSource params = mapCommonParameters(token);
+    params.addValue(CREATE_ID, token.userId());
+
+    return params;
   }
 
   /**
@@ -54,16 +63,20 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
    * @return A {@link MapSqlParameterSource} that can be used in a {@code jdbcTemplate.update} statement.
    */
   static MapSqlParameterSource mapForUpdate(Token token) {
-    return mapCommonParameters(token);
+    MapSqlParameterSource params = mapCommonParameters(token);
+    params.addValue(UPDATE_CNT, token.updateCount());
+
+    return params;
   }
 
   private static MapSqlParameterSource mapCommonParameters(Token token) {
     MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("token", UuidAdapter.convert(token.token()));
-    params.addValue("user_id", token.userId());
-    params.addValue("expiry_dt_tm", Date.from(token.expiryDateTime().toInstant()));
-    params.addValue("used_ind", token.used());
-    params.addValue("active_ind", token.active());
+    params.addValue(TOKEN_IDENT, UuidAdapter.convert(token.token()));
+    params.addValue(USER_ID, token.userId());
+    params.addValue(EXPIRY_DT_TM, Date.from(token.expiryDateTime().toInstant()));
+    params.addValue(USED_IND, token.used());
+    params.addValue(ACTIVE_IND, token.active());
+    params.addValue(UPDATE_ID, token.userId());
 
     return params;
   }
