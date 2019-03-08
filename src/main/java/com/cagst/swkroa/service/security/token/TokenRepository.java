@@ -18,7 +18,7 @@ public interface TokenRepository {
    *
    * @return {@code true} if the token is valid, {@code false} otherwise.
    */
-  Mono<Boolean> isTokenValid(long userId, String token);
+  Mono<Token> findToken(long userId, String token);
 
   /**
    * Inserts a new {@link Token} into persistent storage.
@@ -27,4 +27,12 @@ public interface TokenRepository {
    *    The {@link Token} to persist.
    */
   void insertToken(Token token);
+
+  /**
+   * Updates the {@link Token} in persistent storage.
+   *
+   * @param token
+   *    The {@link Token} to update.
+   */
+  void updateToken(Token token);
 }

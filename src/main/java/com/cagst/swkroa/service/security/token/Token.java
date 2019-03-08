@@ -19,6 +19,7 @@ import lombok.experimental.Accessors;
     "token",
     "userId",
     "expiryDtTm",
+    "used",
     "active"
 })
 @Value
@@ -32,7 +33,12 @@ public class Token {
   @JsonProperty("userId")
   private Long userId;
 
+  @JsonProperty("expiryDtTm")
   private OffsetDateTime expiryDateTime;
+
+  @JsonProperty("used")
+  @Builder.Default
+  private boolean used = false;
 
   @JsonProperty("active")
   @Builder.Default

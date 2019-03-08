@@ -61,7 +61,7 @@ class DictionaryRepositoryJdbcTest extends BaseTestRepository {
       @DisplayName("should return an empty mono when not found")
       void testNotFound() {
         repo.getDictionaryById(999L)
-            .subscribe(dictionary -> assertNotNull(dictionary, "Ensure the dictionary was not found"));
+            .subscribe(dictionary -> fail("should not emit an event since the token was not found"));
       }
 
       @Test

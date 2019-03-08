@@ -158,7 +158,7 @@ import reactor.core.publisher.Mono;
 
       int cnt = getJdbcTemplate().update(
           stmtLoader.load(INSERT_DICTIONARY_VALUE),
-          DictionaryValueMapper.mapInsertStatement(userId, dictionaryId, dv),
+          DictionaryValueMapper.mapForInsert(userId, dictionaryId, dv),
           keyHolder);
 
       if (cnt != 1) {
@@ -182,7 +182,7 @@ import reactor.core.publisher.Mono;
 
       int cnt = getJdbcTemplate().update(
           stmtLoader.load(UPDATE_DICTIONARY_VALUE),
-          DictionaryValueMapper.mapUpdateStatement(userId, dv));
+          DictionaryValueMapper.mapForUpdate(userId, dv));
 
       if (cnt == 1) {
         return Mono.just(dv.toBuilder()

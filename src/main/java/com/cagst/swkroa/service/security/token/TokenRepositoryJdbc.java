@@ -1,6 +1,6 @@
 package com.cagst.swkroa.service.security.token;
 
-import java.sql.Date;
+import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
 
@@ -22,8 +22,11 @@ import reactor.core.publisher.Mono;
 /* package */ class TokenRepositoryJdbc extends BaseRepositoryJdbc implements TokenRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger(TokenRepositoryJdbc.class);
 
-  private static final String IS_TOKEN_VALID = "IS_TOKEN_VALID";
-  private static final String INSERT_TOKEN   = "INSERT_TOKEN";
+  private static final String FIND_TOKEN   = "FIND_TOKEN";
+  private static final String INSERT_TOKEN = "INSERT_TOKEN";
+  private static final String UPDATE_TOKEN = "UPDATE_TOKEN";
+
+  private final TokenMapper TOKEN_MAPPER = new TokenMapper();
 
   /**
    * Primary Constructor used to create an instance of the <i>TokenRepositoryJdbc</i> class.
@@ -36,8 +39,8 @@ import reactor.core.publisher.Mono;
   }
 
   @Override
-  public Mono<Boolean> isTokenValid(long userId, String token) {
-    LOGGER.debug("Calling isTokenValid for [{}, {}]", userId, token);
+  public Mono<Token> findToken(long userId, String token) {
+    LOGGER.debug("Calling findToken for [{}, {}]", userId, token);
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
@@ -47,8 +50,12 @@ import reactor.core.publisher.Mono;
     params.addValue("token", UuidAdapter.convert(uuid));
     params.addValue("user_id", userId);
 
-    Long cnt = getJdbcTemplate().queryForObject(stmtLoader.load(IS_TOKEN_VALID), params, Long.class);
-    return Mono.just(cnt != null && cnt != 0);
+    List<Token> tokens = getJdbcTemplate().query(stmtLoader.load(FIND_TOKEN), params, TOKEN_MAPPER);
+    if (tokens != null && tokens.size() == 1) {
+      return Mono.just(tokens.get(0));
+    } else {
+      return Mono.empty();
+    }
   }
 
   @Override
@@ -56,13 +63,14 @@ import reactor.core.publisher.Mono;
     LOGGER.debug("Calling insertToken for [{}]", token.token());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+    getJdbcTemplate().update(stmtLoader.load(INSERT_TOKEN), TokenMapper.mapForInsert(token));
+  }
 
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("token", UuidAdapter.convert(token.token()));
-    params.addValue("user_id", token.userId());
-    params.addValue("expiry_dt_tm", Date.from(token.expiryDateTime().toInstant()));
-    params.addValue("active_ind", token.active());
+  @Override
+  public void updateToken(Token token) {
+    LOGGER.debug("Calling updateToken for [{}]", token.token());
 
-    getJdbcTemplate().update(stmtLoader.load(INSERT_TOKEN), params);
+    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+    getJdbcTemplate().update(stmtLoader.load(INSERT_TOKEN), TokenMapper.mapForUpdate(token));
   }
 }

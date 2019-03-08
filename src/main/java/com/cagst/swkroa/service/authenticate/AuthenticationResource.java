@@ -10,6 +10,7 @@ import com.cagst.swkroa.service.security.LoginStatus;
 import com.cagst.swkroa.service.security.token.Token;
 import com.cagst.swkroa.service.security.token.TokenRepository;
 import com.cagst.swkroa.service.user.UserService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,9 @@ import reactor.core.publisher.Mono;
 @RequestMapping("auth")
 public class AuthenticationResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationResource.class);
+
+  private static final long ACCESS_EXPIRY_IN_MINUTES  = 5L;
+  private static final long REFRESH_EXPIRY_IN_MINUTES = 10L;
 
   private final UserService userService;
   private final TokenRepository tokenRepository;
@@ -71,35 +75,15 @@ public class AuthenticationResource {
     }
 
     return userService.loginAttempt(loginRequest.username(), loginRequest.password(), ipAddress)
-        .map(user -> {
+        .flatMap(user -> {
           if (!user.active()) {
-            return new ResponseEntity<>(LoginResponse.builder()
-                .loginStatus(LoginStatus.DISABLED)
-                .build(), HttpStatus.UNAUTHORIZED);
+            return Mono.just(generateResponse(LoginStatus.DISABLED, null, null));
           } else if (user.lockedDateTime() != null) {
-            return new ResponseEntity<>(LoginResponse.builder()
-                .loginStatus(LoginStatus.LOCKED)
-                .build(), HttpStatus.UNAUTHORIZED);
+            return Mono.just(generateResponse(LoginStatus.LOCKED, null, null));
           } else if (user.expiredDateTime() != null) {
-            return new ResponseEntity<>(LoginResponse.builder()
-                .loginStatus(LoginStatus.EXPIRED)
-                .build(), HttpStatus.UNAUTHORIZED);
+            return Mono.just(generateResponse(LoginStatus.EXPIRED, null, null));
           } else {
-            OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(5);
-
-            Token refreshToken = Token.builder()
-                .token(UUID.randomUUID())
-                .userId(user.userId())
-                .expiryDateTime(expiryDateTime.plusMinutes(10))
-                .build();
-
-            tokenRepository.insertToken(refreshToken);
-
-            return ResponseEntity.ok(LoginResponse.builder()
-                .loginStatus(user.temporary() ? LoginStatus.TEMPORARY : LoginStatus.VALID)
-                .accessToken(jwtService.generateAccessToken(user, expiryDateTime))
-                .refreshToken(refreshToken.token().toString())
-                .build());
+            return Mono.just(generateResponse(LoginStatus.VALID, user.userId(), user.temporary()));
           }
         })
         .defaultIfEmpty(new ResponseEntity<>(LoginResponse.builder()
@@ -114,16 +98,43 @@ public class AuthenticationResource {
   @GetMapping("refresh")
   public Mono<ResponseEntity<LoginResponse>> refresh(@RequestBody String refreshToken) {
     return ReactiveSecurityContextHolder.getContext()
-        .map(securityContext -> {
-          return new ResponseEntity<>(LoginResponse.builder()
-              .loginStatus(LoginStatus.EXPIRED)
-              .build(), HttpStatus.UNAUTHORIZED
-          );
-        })
-        .defaultIfEmpty(new ResponseEntity<>(LoginResponse.builder()
-            .loginStatus(LoginStatus.INVALID)
-            .build(), HttpStatus.UNAUTHORIZED)
+        .map(securityContext -> (long)securityContext.getAuthentication().getPrincipal())
+        .flatMap(userId -> tokenRepository.findToken(userId, refreshToken)
+            .map(token -> {
+              tokenRepository.updateToken(token.toBuilder().used(true).build());
+                return generateResponse(LoginStatus.VALID, userId, false);
+            })
+            .defaultIfEmpty(generateResponse(LoginStatus.INVALID, null, null))
         );
+  }
 
+  private ResponseEntity<LoginResponse> generateResponse(LoginStatus loginStatus, Long userId, Boolean temporary) {
+    switch (loginStatus) {
+      case DISABLED:
+      case LOCKED:
+      case EXPIRED:
+        return new ResponseEntity<>(LoginResponse.builder().loginStatus(loginStatus).build(), HttpStatus.UNAUTHORIZED);
+
+      case VALID: {
+        OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(ACCESS_EXPIRY_IN_MINUTES);
+
+        Token refreshToken = Token.builder()
+            .token(UUID.randomUUID())
+            .userId(userId)
+            .expiryDateTime(expiryDateTime.plusMinutes(REFRESH_EXPIRY_IN_MINUTES))
+            .build();
+
+        tokenRepository.insertToken(refreshToken);
+
+        return ResponseEntity.ok(LoginResponse.builder()
+            .loginStatus(BooleanUtils.toBoolean(temporary) ? LoginStatus.TEMPORARY : LoginStatus.VALID)
+            .accessToken(jwtService.generateAccessToken(userId, expiryDateTime))
+            .refreshToken(refreshToken.token().toString())
+            .build());
+      }
+
+      default:
+        return new ResponseEntity<>(LoginResponse.builder().loginStatus(LoginStatus.INVALID).build(), HttpStatus.UNAUTHORIZED);
+    }
   }
 }

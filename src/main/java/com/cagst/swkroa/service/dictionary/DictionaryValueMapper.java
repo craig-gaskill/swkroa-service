@@ -36,18 +36,16 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
   }
 
   /**
-   * Will marshal a {@link DictionaryValue} into a {@link MapSqlParameterSource} for inserting into the
-   * database.
+   * Will marshal a {@link DictionaryValue} into a {@link MapSqlParameterSource} for inserting into the database.
    *
    * @param dictionaryValue
    *     The {@link DictionaryValue} to map into an insert statement.
    * @param userId
    *     The unique identifier of the user that performed the changes.
    *
-   * @return A {@link MapSqlParameterSource} that can be used in a {@code jdbcTemplate.update}
-   * statement.
+   * @return A {@link MapSqlParameterSource} that can be used in a {@code jdbcTemplate.update} statement.
    */
-  static MapSqlParameterSource mapInsertStatement(long userId, long dictionaryId, DictionaryValue dictionaryValue) {
+  static MapSqlParameterSource mapForInsert(long userId, long dictionaryId, DictionaryValue dictionaryValue) {
     MapSqlParameterSource params = mapCommonParameters(userId, dictionaryValue);
     params.addValue(DICTIONARY_ID, dictionaryId);
     params.addValue(CREATE_ID, userId);
@@ -56,18 +54,16 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
   }
 
   /**
-   * Will marshal a {@link DictionaryValue} into a {@link MapSqlParameterSource} for updating into the
-   * database.
+   * Will marshal a {@link DictionaryValue} into a {@link MapSqlParameterSource} for updating in the database.
    *
    * @param dictionaryValue
    *     The {@link DictionaryValue} to map into an update statement.
    * @param userId
    *     The unique identifier of the user that performed the changes.
    *
-   * @return A {@link MapSqlParameterSource} that can be used in a {@code jdbcTemplate.update}
-   * statement.
+   * @return A {@link MapSqlParameterSource} that can be used in a {@code jdbcTemplate.update} statement.
    */
-  static MapSqlParameterSource mapUpdateStatement(long userId, DictionaryValue dictionaryValue) {
+  static MapSqlParameterSource mapForUpdate(long userId, DictionaryValue dictionaryValue) {
     MapSqlParameterSource params = mapCommonParameters(userId, dictionaryValue);
     params.addValue(DICTIONARY_VALUE_ID, dictionaryValue.dictionaryValueId());
     params.addValue(UPDATE_CNT, dictionaryValue.updateCount());

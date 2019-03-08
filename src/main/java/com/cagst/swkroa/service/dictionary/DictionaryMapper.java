@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.RowMapper;
   private static final String UPDATE_CNT    = "updt_cnt";
 
   @Override
-  public Dictionary mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+  public Dictionary mapRow(ResultSet rs, int rowNum) throws SQLException {
     return Dictionary.builder()
         .dictionaryId(rs.getLong(DICTIONARY_ID))
         .display(rs.getString(DISPLAY))
