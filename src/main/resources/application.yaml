@@ -13,7 +13,14 @@ server:
   compression:
     enabled: true
   port: 8080
+  http2:
+    enabled: true
 
 logging:
   level:
     root: info
+
+swkroa:
+  cors:
+    allowed-headers: "*"
+    allowed-origins: "*"

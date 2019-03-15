@@ -34,8 +34,8 @@ import reactor.core.publisher.Mono;
 public class AuthenticationResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationResource.class);
 
-  private static final long ACCESS_EXPIRY_IN_MINUTES  = 5L;
-  private static final long REFRESH_EXPIRY_IN_MINUTES = 10L;
+  private static final long ACCESS_EXPIRY_IN_MINUTES  = 4 * 60;       // 4 hours
+  private static final long REFRESH_EXPIRY_IN_MINUTES = 4 * 60 + 15;  // 4 hours + 15 minutes
 
   private final UserService userService;
   private final TokenRepository tokenRepository;
