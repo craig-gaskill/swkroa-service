@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
       if (LocalDateTime.now().isAfter(unlockAfter)) {
         user = unlockAccount(user.userId(), user);
-        LOGGER.info("User account [{}] was unlocked", username);
+        LOGGER.debug("User account [{}] was unlocked", username);
       }
     }
 
