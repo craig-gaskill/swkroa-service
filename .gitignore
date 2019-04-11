@@ -25,4 +25,4 @@
 /.nb-gradle/
 
 ### Custom ###
-flyway.conf
+flyway.*.conf

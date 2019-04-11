@@ -1,7 +1,7 @@
 DROP TRIGGER IF EXISTS member_type_history;
 
 ALTER TABLE member_type
-        ADD beg_eff_dt DATE NOT NULL
+        ADD beg_eff_dt DATE NULL
        ,ADD end_eff_dt DATE NULL;
 
 UPDATE member_type
@@ -15,3 +15,6 @@ UPDATE member_type
 ALTER TABLE member_type
        DROP beg_eff_dt_tm
       ,DROP end_eff_dt_tm;
+
+ALTER TABLE member_type
+     MODIFY beg_eff_dt DATE NOT NULL;
