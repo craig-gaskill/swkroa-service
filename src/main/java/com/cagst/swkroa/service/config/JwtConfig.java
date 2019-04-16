@@ -24,6 +24,6 @@ public class JwtConfig {
 
   @Bean
   public Algorithm getAlgorithm() {
-    return Algorithm.HMAC512(jwtProperties.getSecurityKey());
+    return Algorithm.HMAC512(jwtProperties.getSecretKey());
   }
 }

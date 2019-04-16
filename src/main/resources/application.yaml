@@ -25,4 +25,4 @@ swkroa:
     allowed-headers: "*"
     allowed-origins: "*"
   jwt:
-    security-key: super-secret
+    secret-key: super-secret
