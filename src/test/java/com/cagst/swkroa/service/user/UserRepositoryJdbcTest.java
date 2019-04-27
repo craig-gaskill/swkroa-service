@@ -1,16 +1,11 @@
 package com.cagst.swkroa.service.user;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Optional;
 
-import com.cagst.swkroa.service.internal.jdbc.BaseTestRepository;
-import com.cagst.swkroa.service.internal.jdbc.StatementDialect;
+import com.cagst.common.jdbc.BaseTestRepository;
+import com.cagst.common.jdbc.StatementDialect;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -4,8 +4,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.cagst.swkroa.service.internal.jdbc.BaseRepositoryJdbc;
-import com.cagst.swkroa.service.internal.jdbc.StatementLoader;
+import com.cagst.common.jdbc.BaseRepositoryJdbc;
+import com.cagst.common.jdbc.StatementLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;

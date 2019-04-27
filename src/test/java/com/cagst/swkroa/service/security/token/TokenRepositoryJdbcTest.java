@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import com.cagst.swkroa.service.internal.jdbc.BaseTestRepository;
-import com.cagst.swkroa.service.internal.jdbc.StatementDialect;
+import com.cagst.common.jdbc.BaseTestRepository;
+import com.cagst.common.jdbc.StatementDialect;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

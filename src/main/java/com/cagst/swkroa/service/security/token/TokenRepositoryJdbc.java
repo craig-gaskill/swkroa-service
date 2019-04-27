@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
 
-import com.cagst.swkroa.service.internal.jdbc.BaseRepositoryJdbc;
-import com.cagst.swkroa.service.internal.jdbc.StatementLoader;
+import com.cagst.common.jdbc.BaseRepositoryJdbc;
+import com.cagst.common.jdbc.StatementLoader;
 import com.cagst.swkroa.service.util.UuidAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
