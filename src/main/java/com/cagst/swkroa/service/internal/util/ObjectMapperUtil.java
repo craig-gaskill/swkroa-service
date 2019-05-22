@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 
 /**
  * Static convenience methods for working with an {@link ObjectMapper}.
@@ -29,7 +28,7 @@ public abstract class ObjectMapperUtil {
 
       objectMapper = new ObjectMapper();
       objectMapper.registerModule(new JavaTimeModule());
-      objectMapper.registerModule(new AfterburnerModule());
+//      objectMapper.registerModule(new AfterburnerModule());
       objectMapper.registerModule(module);
       objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
