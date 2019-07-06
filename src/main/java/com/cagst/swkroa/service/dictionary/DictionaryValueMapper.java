@@ -19,10 +19,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
   private static final String MEANING             = "codevalue_meaning";
 
   // meta-data
-  private static final String ACTIVE_IND          = "active_ind";
-  private static final String CREATE_ID           = "create_id";
-  private static final String UPDATE_ID           = "updt_id";
-  private static final String UPDATE_CNT          = "updt_cnt";
+  private static final String ACTIVE_IND = "active_ind";
+  private static final String CREATE_ID  = "create_id";
+  private static final String UPDATE_ID  = "updt_id";
+  private static final String UPDATE_CNT = "updt_cnt";
 
   @Override
   public DictionaryValue mapRow(ResultSet rs, int rowNum) throws SQLException {

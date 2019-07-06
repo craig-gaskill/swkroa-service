@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,7 +106,7 @@ public class DictionaryResource {
     LOGGER.debug("Received request to insertDictionaryValue for [{}]", dictionaryType);
 
     return dictionaryService.insertDictionaryValue(1L, dictionaryType, dictionaryValue)
-        .map(ResponseEntity::ok);
+        .map(result -> ResponseEntity.status(HttpStatus.CREATED).body(result));
   }
 
   /**
@@ -154,7 +155,7 @@ public class DictionaryResource {
     LOGGER.debug("Received request to deleteDictionaryValue for [{}, {}]", dictionaryType, id);
 
     return dictionaryService.deleteDictionaryValue(1L, dictionaryType, id)
-        .map(ResponseEntity::ok)
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+        .map(result -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+//        .switchIfEmpty(ResponseEntity.notFound().build());
   }
 }
