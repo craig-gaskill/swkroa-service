@@ -6,8 +6,8 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.cagst.swkroa.service.internal.jdbc.BaseRepositoryJdbc;
-import com.cagst.swkroa.service.internal.jdbc.StatementLoader;
+import com.cagst.common.jdbc.BaseRepositoryJdbc;
+import com.cagst.common.jdbc.StatementLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -48,7 +48,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
   public Optional<User> getUserByUsername(String username) throws IllegalArgumentException {
     Assert.hasText(username, "Argument [username] cannot be null or empty");
 
-    LOGGER.info("Calling getUserByUsername [{}].", username);
+    LOGGER.debug("Calling getUserByUsername [{}].", username);
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
@@ -95,7 +95,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
   public User loginSuccessful(User user, String ipAddress) throws IllegalArgumentException {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.info("Calling loginSuccessful for User [{}].", user.username());
+    LOGGER.debug("Calling loginSuccessful for User [{}].", user.username());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
@@ -116,7 +116,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
   public User lockUserAccount(long userId, User user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.info("Calling lockUserAccount for User [{}].", user.username());
+    LOGGER.debug("Calling lockUserAccount for User [{}].", user.username());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
@@ -137,7 +137,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
   public User unlockUserAccount(long userId, User user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.info("Calling unlockUserAccount for User [{}].", user.username());
+    LOGGER.debug("Calling unlockUserAccount for User [{}].", user.username());
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 

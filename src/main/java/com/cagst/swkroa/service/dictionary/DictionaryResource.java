@@ -4,8 +4,10 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -89,21 +91,22 @@ public class DictionaryResource {
    *
    * @param dictionaryType
    *    A {@link DictionaryType} that represents the {@link Dictionary} to insert the {@link DictionaryValue} for.
-   * @param dv
+   * @param dictionaryValue
    *    The {@link DictionaryValue} to insert.
    *
    * @return A JSON representation after the DictionaryValue has been inserted.
    */
+  @Transactional
   @PostMapping("{dictionaryType}/values")
   public Mono<ResponseEntity<DictionaryValue>> insertDictionaryValue(@PathVariable DictionaryType dictionaryType,
-                                                                     @RequestBody DictionaryValue dv
+                                                                     @RequestBody Mono<DictionaryValue> dictionaryValue
   ) {
-    Assert.notNull(dv, "Argument [dv] cannot be null.");
+    Assert.notNull(dictionaryValue, "Argument [dv] cannot be null.");
 
     LOGGER.debug("Received request to insertDictionaryValue for [{}]", dictionaryType);
 
-    return dictionaryService.insertDictionaryValue(1L, dictionaryType, dv)
-        .map(ResponseEntity::ok);
+    return dictionaryService.insertDictionaryValue(1L, dictionaryType, dictionaryValue)
+        .map(result -> ResponseEntity.status(HttpStatus.CREATED).body(result));
   }
 
   /**
@@ -113,22 +116,23 @@ public class DictionaryResource {
    *    A {@link DictionaryType} that represents the {@link Dictionary} to update the {@link DictionaryValue} for.
    * @param id
    *    The unique identifier of the DictionaryValue to update.
-   * @param dv
+   * @param dictionaryValue
    *    The DictionaryValue to update.
    *
    * @return A JSON representation after the DictionaryValue has been updated.
    */
+  @Transactional
   @PutMapping("{dictionaryType}/values/{id}")
   public Mono<ResponseEntity<DictionaryValue>> updateDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                                      @PathVariable long id,
-                                                                     @RequestBody DictionaryValue dv
+                                                                     @RequestBody Mono<DictionaryValue> dictionaryValue
   ) {
     Assert.isTrue(id > 0, "Argument [id] must be greater than 0.");
-    Assert.notNull(dv, "Argument [dv] cannot be null.");
+    Assert.notNull(dictionaryValue, "Argument [dv] cannot be null.");
 
     LOGGER.debug("Received request to updateDictionaryValue for [{}, {}]", dictionaryType, id);
 
-    return dictionaryService.updateDictionaryValue(1L, dictionaryType, id, dv)
+    return dictionaryService.updateDictionaryValue(1L, dictionaryType, id, dictionaryValue)
         .map(ResponseEntity::ok)
         .defaultIfEmpty(ResponseEntity.notFound().build());
   }
@@ -141,6 +145,7 @@ public class DictionaryResource {
    * @param id
    *    The unique identifier of the DictionaryValue to delete.
    */
+  @Transactional
   @DeleteMapping("{dictionaryType}/values/{id}")
   public Mono<ResponseEntity<Void>> deleteDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                           @PathVariable long id
@@ -150,7 +155,7 @@ public class DictionaryResource {
     LOGGER.debug("Received request to deleteDictionaryValue for [{}, {}]", dictionaryType, id);
 
     return dictionaryService.deleteDictionaryValue(1L, dictionaryType, id)
-        .map(ResponseEntity::ok)
-        .defaultIfEmpty(ResponseEntity.notFound().build());
+        .map(result -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+//        .switchIfEmpty(ResponseEntity.notFound().build());
   }
 }

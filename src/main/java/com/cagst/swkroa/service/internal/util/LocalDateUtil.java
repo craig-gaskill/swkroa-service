@@ -6,7 +6,8 @@ package com.cagst.swkroa.service.internal.util;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import javax.annotation.Nullable;
+
+import org.springframework.lang.Nullable;
 
 /**
  * Static convenience methods that help transform to / from a {@link LocalDate}.

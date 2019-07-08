@@ -53,7 +53,7 @@ import reactor.core.publisher.Mono;
   @Override
   public Mono<DictionaryValue> insertDictionaryValue(long userId,
                                                      DictionaryType dictionaryType,
-                                                     DictionaryValue dictionaryValue
+                                                     Mono<DictionaryValue> dictionaryValue
   ) {
     Assert.isTrue(userId > 0, "Argument [userId] must be greater than 0.");
     Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
@@ -69,7 +69,7 @@ import reactor.core.publisher.Mono;
   public Mono<DictionaryValue> updateDictionaryValue(long userId,
                                                      DictionaryType dictionaryType,
                                                      long dictionaryValueId,
-                                                     DictionaryValue dictionaryValue
+                                                     Mono<DictionaryValue> dictionaryValue
   ) {
     Assert.isTrue(userId > 0, "Argument [userId] must be greater than 0.");
     Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
@@ -79,7 +79,7 @@ import reactor.core.publisher.Mono;
     LOGGER.debug("Calling updateDictionaryValue for [{}, {}]", dictionaryType, dictionaryValueId);
 
     return dictionaryRepository.getDictionaryValueById(dictionaryType, dictionaryValueId)
-        .flatMap(d -> dictionaryRepository.updateDictionaryValue(userId, dictionaryValue));
+        .flatMap(dv -> dictionaryRepository.updateDictionaryValue(userId, dictionaryValue));
   }
 
   @Override
@@ -92,6 +92,10 @@ import reactor.core.publisher.Mono;
 
     LOGGER.debug("Received request to deleteDictionaryValue for [{}, {}]", dictionaryType, dictionaryValueId);
 
-    return null;
+    return dictionaryRepository.getDictionaryValueById(dictionaryType, dictionaryValueId)
+        .flatMap(dv -> {
+          dv = dv.toBuilder().active(false).build();
+          return dictionaryRepository.updateDictionaryValue(userId, Mono.just(dv)).then();
+        });
   }
 }

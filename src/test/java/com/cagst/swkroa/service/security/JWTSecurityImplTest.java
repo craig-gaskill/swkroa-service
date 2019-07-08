@@ -1,14 +1,12 @@
 package com.cagst.swkroa.service.security;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import com.cagst.swkroa.service.user.User;
+import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.time.OffsetDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the {@link JWTServiceImpl} class.
@@ -17,14 +15,16 @@ import org.junit.jupiter.api.Test;
  */
 @DisplayName("JWTSecurityImpl")
 class JWTSecurityImplTest {
-  private final String secret = "qmvsq92lg274pgsismm2se8jjj8m8tpm";
+  private Algorithm algorithm = Algorithm.HMAC512("secret");
 
-  private JWTServiceImpl jwtService = new JWTServiceImpl(secret);
+  private JWTServiceImpl jwtService = new JWTServiceImpl(algorithm);
 
   @Test
   @DisplayName("should create and verify a Token")
   void testCreateAndVerify() {
-    String token = jwtService.generateAccessToken(User.builder().userId(1L).build());
+    OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(15);
+
+    String token = jwtService.generateAccessToken(1L, expiryDateTime);
     assertAll("Ensure the token",
         () -> assertNotNull(token, "exists"),
         () -> assertFalse(token.isEmpty(), "is not empty"));

@@ -1,7 +1,5 @@
 package com.cagst.swkroa.service.config;
 
-import javax.inject.Inject;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,8 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
-import org.springframework.web.reactive.config.CorsRegistry;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
+
+import javax.inject.Inject;
 
 /**
  * Provides configuration of the systems Security.
@@ -24,7 +22,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
-public class SecurityConfig implements WebFluxConfigurer {
+public class SecurityConfig {
   private static final int STRENGTH = 12;
 
   private final ReactiveAuthenticationManager authenticationManager;
@@ -71,7 +69,7 @@ public class SecurityConfig implements WebFluxConfigurer {
     http.authenticationManager(authenticationManager);
 
     // Allow all routes to '/auth'
-    http.authorizeExchange().pathMatchers("/auth/**").permitAll();
+    http.authorizeExchange().pathMatchers("/auth/login", "/auth/refresh").permitAll();
 
     // Allow OPTIONS
     http.authorizeExchange().pathMatchers(HttpMethod.OPTIONS).permitAll();
@@ -80,17 +78,5 @@ public class SecurityConfig implements WebFluxConfigurer {
     http.authorizeExchange().anyExchange().authenticated();
 
     return http.build();
-  }
-
-  @Override
-  public void addCorsMappings(CorsRegistry corsRegistry) {
-    corsRegistry.addMapping("/**")
-        .allowedMethods(
-            HttpMethod.GET.name(),
-            HttpMethod.POST.name(),
-            HttpMethod.PUT.name(),
-            HttpMethod.DELETE.name(),
-            HttpMethod.HEAD.name())
-        .maxAge(3600);
   }
 }

@@ -4,8 +4,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.cagst.swkroa.service.internal.jdbc.BaseRepositoryJdbc;
-import com.cagst.swkroa.service.internal.jdbc.StatementLoader;
+import com.cagst.common.jdbc.BaseRepositoryJdbc;
+import com.cagst.common.jdbc.StatementLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -19,7 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * JDBC Template implementation of the {@link DictionaryRepository} interface.
+ * JDBC implementation of the {@link DictionaryRepository} interface.
  *
  * @author Craig Gaskill
  */
@@ -36,8 +36,11 @@ import reactor.core.publisher.Mono;
   private static final String INSERT_DICTIONARY_VALUE = "INSERT_DICTIONARY_VALUE";
   private static final String UPDATE_DICTIONARY_VALUE = "UPDATE_DICTIONARY_VALUE";
 
+  private static final DictionaryMapper DICTIONARY_MAPPER = new DictionaryMapper();
+  private static final DictionaryValueMapper DICTIONARY_VALUE_MAPPER = new DictionaryValueMapper();
+
   /**
-   * Primary Constructor used to create an instance of the CodeValueRepositoryJdbc.
+   * Primary Constructor used to create an instance of the <i>DictionaryRepositoryJdbc</i>.
    *
    * @param dataSource
    *     The {@link DataSource} used to retrieve / persist data objects.
@@ -53,10 +56,7 @@ import reactor.core.publisher.Mono;
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    List<Dictionary> dictionaries = getJdbcTemplate().getJdbcOperations()
-        .query(stmtLoader.load(GET_DICTIONARIES), new DictionaryMapper());
-
-    return Flux.fromIterable(dictionaries);
+    return Flux.fromIterable(getJdbcTemplate().query(stmtLoader.load(GET_DICTIONARIES), DICTIONARY_MAPPER));
   }
 
   @Override
@@ -68,7 +68,7 @@ import reactor.core.publisher.Mono;
     List<Dictionary> dictionaries = getJdbcTemplate().query(
         stmtLoader.load(GET_DICTIONARY_BY_ID),
         new MapSqlParameterSource("dictionaryId", id),
-        new DictionaryMapper());
+        DICTIONARY_MAPPER);
 
     if (dictionaries.size() == 1) {
       return Mono.just(dictionaries.get(0));
@@ -90,7 +90,7 @@ import reactor.core.publisher.Mono;
     List<Dictionary> dictionaries = getJdbcTemplate().query(
         stmtLoader.load(GET_DICTIONARY_BY_MEANING),
         new MapSqlParameterSource("dictionaryMeaning", dictionaryType.name()),
-        new DictionaryMapper());
+        DICTIONARY_MAPPER);
 
     if (dictionaries.size() == 1) {
       return Mono.just(dictionaries.get(0));
@@ -114,7 +114,7 @@ import reactor.core.publisher.Mono;
     List<DictionaryValue> values = getJdbcTemplate().query(
         stmtLoader.load(GET_VALUES_BY_DICTIONARY_MEANING),
         new MapSqlParameterSource("dictionaryMeaning", dictionaryType.name()),
-        new DictionaryValueMapper());
+        DICTIONARY_VALUE_MAPPER);
 
     return Flux.fromIterable(values);
   }
@@ -133,7 +133,7 @@ import reactor.core.publisher.Mono;
     List<DictionaryValue> values = getJdbcTemplate().query(
         stmtLoader.load(GET_VALUE_BY_ID),
         params,
-        new DictionaryValueMapper());
+        DICTIONARY_VALUE_MAPPER);
 
     if (values.size() == 1) {
       return Mono.just(values.get(0));
@@ -147,49 +147,53 @@ import reactor.core.publisher.Mono;
   }
 
   @Override
-  public Mono<DictionaryValue> insertDictionaryValue(long userId, long dictionaryId, DictionaryValue dictionaryValue) {
+  public Mono<DictionaryValue> insertDictionaryValue(long userId, long dictionaryId, Mono<DictionaryValue> dictionaryValue) {
     Assert.notNull(dictionaryValue, "Argument dictionaryValue cannot be null.");
 
-    LOGGER.debug("Calling insertDictionaryValue for [{}]", dictionaryValue.display());
+    return dictionaryValue.flatMap(dv -> {
+      LOGGER.debug("Calling insertDictionaryValue for [{}]", dv.display());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
-    KeyHolder keyHolder = new GeneratedKeyHolder();
+      StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+      KeyHolder keyHolder = new GeneratedKeyHolder();
 
-    int cnt = getJdbcTemplate().update(
-        stmtLoader.load(INSERT_DICTIONARY_VALUE),
-        DictionaryValueMapper.mapInsertStatement(userId, dictionaryId, dictionaryValue),
-        keyHolder);
+      int cnt = getJdbcTemplate().update(
+          stmtLoader.load(INSERT_DICTIONARY_VALUE),
+          DictionaryValueMapper.mapForInsert(userId, dictionaryId, dv),
+          keyHolder);
 
-    if (cnt != 1) {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
+      if (cnt != 1) {
+        throw new IncorrectResultSizeDataAccessException(1, cnt);
+      }
 
-    return Mono.just(dictionaryValue.toBuilder()
-        .dictionaryValueId(keyHolder.getKey().longValue())
-        .build());
+      return Mono.just(dv.toBuilder()
+          .dictionaryValueId(keyHolder.getKey().longValue())
+          .build());
+    });
   }
 
   @Override
-  public Mono<DictionaryValue> updateDictionaryValue(long userId, DictionaryValue dictionaryValue) {
+  public Mono<DictionaryValue> updateDictionaryValue(long userId, Mono<DictionaryValue> dictionaryValue) {
     Assert.notNull(dictionaryValue, "Argument dictionaryValue cannot be null.");
 
-    LOGGER.debug("Calling updateDictionaryValue for [{}]", dictionaryValue.display());
+    return dictionaryValue.flatMap(dv -> {
+      LOGGER.debug("Calling updateDictionaryValue for [{}]", dv.display());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+      StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    int cnt = getJdbcTemplate().update(
-        stmtLoader.load(UPDATE_DICTIONARY_VALUE),
-        DictionaryValueMapper.mapUpdateStatement(userId, dictionaryValue));
+      int cnt = getJdbcTemplate().update(
+          stmtLoader.load(UPDATE_DICTIONARY_VALUE),
+          DictionaryValueMapper.mapForUpdate(userId, dv));
 
-    if (cnt == 1) {
-      return Mono.just(dictionaryValue.toBuilder()
-          .updateCount(dictionaryValue.updateCount() + 1)
-          .build());
-    } else if (cnt == 0) {
-      throw new OptimisticLockingFailureException("invalid update count of [" + cnt
-          + "] possible update count mismatch");
-    } else {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
+      if (cnt == 1) {
+        return Mono.just(dv.toBuilder()
+            .updateCount(dv.updateCount() + 1)
+            .build());
+      } else if (cnt == 0) {
+        throw new OptimisticLockingFailureException("invalid update count of [" + cnt
+            + "] possible update count mismatch");
+      } else {
+        throw new IncorrectResultSizeDataAccessException(1, cnt);
+      }
+    });
   }
 }

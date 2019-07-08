@@ -1,22 +1,18 @@
 package com.cagst.swkroa.service.security;
 
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.cagst.swkroa.service.user.User;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.time.OffsetDateTime;
+import java.util.Date;
 
 /**
  * Defines methods for generating an Access and a Refresh token.
@@ -31,50 +27,16 @@ import org.springframework.stereotype.Service;
   private final JWTVerifier jwtVerifier;
 
   @Inject
-  public JWTServiceImpl(@Qualifier("secretKey") String secretKey) {
-    LOGGER.info("Generating Algorithm and Verifier using [{}]", secretKey);
-    this.algorithm   = Algorithm.HMAC512(secretKey);
+  public JWTServiceImpl(Algorithm algorithm) {
+    this.algorithm   = algorithm;
     this.jwtVerifier = JWT.require(algorithm).build();
   }
 
-  /**
-   * Generates an access token for the specified User.
-   *
-   * @param user
-   *     The {@link User} the Token is to be generated for.
-   *
-   * @return A String representation of a JWT for the specified User.
-   */
   @Override
-  public String generateAccessToken(User user) {
-    // get the current date/time (in UTC)
-    ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
-
+  public String generateAccessToken(long userId, OffsetDateTime expiryDateTime) {
     return JWT.create()
-        .withSubject(String.valueOf(user.userId()))
-        .withIssuedAt(Date.from(now.toInstant()))
-        .withExpiresAt(Date.from(now.plusMinutes(5).toInstant()))
-        .sign(algorithm);
-  }
-
-  /**
-   * Generates a refresh token for the specified User.
-   *
-   * @param user
-   *     The {@link User} the Token is to be generated for.
-   *
-   * @return A String representation of a JWT for the specified User.
-   */
-  @Override
-  public String generateRefreshToken(User user) {
-    // get the current date/time (in UTC)
-    ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
-
-    return JWT.create()
-        .withJWTId(UUID.randomUUID().toString())
-        .withSubject(String.valueOf(user.userId()))
-        .withIssuedAt(Date.from(now.toInstant()))
-        .withExpiresAt(Date.from(now.plusMinutes(15).toInstant()))
+        .withSubject(String.valueOf(userId))
+        .withExpiresAt(Date.from(expiryDateTime.toInstant()))
         .sign(algorithm);
   }
 

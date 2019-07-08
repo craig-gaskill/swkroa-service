@@ -2,13 +2,27 @@ spring:
   application:
     name: SWKROA
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/swkroadb
-    username: swkroaadmin
-    password: cagst23824
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/swkroadb?serverTimezone=America/Chicago&allowPublicKeyRetrieval=true&useSSL=false
+    username: swkroauser
+    password: 7j[HLiKn/pXR9qT
     hikari:
       maximum-pool-size: 10
+
+server:
+  compression:
+    enabled: true
+  port: 8080
+  http2:
+    enabled: true
 
 logging:
   level:
     root: info
+
+swkroa:
+  cors:
+    allowed-headers: "*"
+    allowed-origins: "*"
+  jwt:
+    secret-key: super-secret

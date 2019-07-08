@@ -54,7 +54,7 @@ public interface DictionaryService {
    */
   Mono<DictionaryValue> insertDictionaryValue(long userId,
                                               DictionaryType dictionaryType,
-                                              DictionaryValue dictionaryValue);
+                                              Mono<DictionaryValue> dictionaryValue);
 
   /**
    * Updates an existing {@link DictionaryValue} in persistent storage.
@@ -73,7 +73,7 @@ public interface DictionaryService {
   Mono<DictionaryValue> updateDictionaryValue(long userId,
                                               DictionaryType dictionaryType,
                                               long dictionaryValueId,
-                                              DictionaryValue dictionaryValue);
+                                              Mono<DictionaryValue> dictionaryValue);
 
   /**
    * Deletes an existing {@link DictionaryValue} in persistent storage.
