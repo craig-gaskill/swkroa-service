@@ -1,5 +1,6 @@
 package com.cagst.swkroa.service.user;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -73,4 +74,11 @@ public interface UserService {
    * @return A {@link User} that has been updated accordingly.
    */
   User unlockAccount(long userId, User user);
+
+  /**
+   * Retrieves a {@link Flux} of {@link User}.
+   *
+   * @return A {@link Flux} of {@link User}.
+   */
+  Flux<User> getUsers();
 }

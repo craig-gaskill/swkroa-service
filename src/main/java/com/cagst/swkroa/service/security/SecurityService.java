@@ -19,4 +19,11 @@ public interface SecurityService {
    * @return The {@link SecurityPolicy} associated with the specified user.
    */
   SecurityPolicy getSecurityPolicy(User user);
+
+  /**
+   * Retrieves the default security policy.
+   *
+   * @return The default {@link SecurityPolicy}.
+   */
+  SecurityPolicy getDefaultSecurityPolicy();
 }

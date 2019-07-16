@@ -11,9 +11,9 @@ import reactor.core.publisher.Mono;
  */
 public interface DictionaryService {
   /**
-   * Retrieves a {@link Flux} of {@link Dictionary} that are active within the system.
+   * Retrieves a {@link Flux} of {@link Dictionary}.
    *
-   * @return A {@link Flux} of {@link Dictionary} that are active within the system.
+   * @return A {@link Flux} of {@link Dictionary}.
    */
   Flux<Dictionary> getDictionaries();
 
@@ -27,6 +27,17 @@ public interface DictionaryService {
    * the Dictionary does not exist.
    */
   Mono<Dictionary> getDictionaryById(long id);
+
+  /**
+   * Retrieves a {@link Dictionary} by its type.
+   *
+   * @param dictionaryType
+   *    The {@link DictionaryType} that identifies the {@link Dictionary} to retrieve.
+   *
+   * @return The {@link Dictionary} that corresponds to the specified type, {@code Mono.empty} if
+   * the Dictionary does not exist.
+   */
+  Mono<Dictionary> getDictionaryByType(DictionaryType dictionaryType);
 
   /**
    * Retrieves a {@link Flux} of {@link DictionaryValue} that are associated to the {@link Dictionary}

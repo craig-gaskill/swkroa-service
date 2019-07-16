@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import reactor.core.publisher.Flux;
 
 /**
  * A JDBC Implementation of the {@link UserRepository} interface.
@@ -22,7 +23,7 @@ import org.springframework.util.Assert;
  * @author Craig Gaskill
  */
 @Repository
-public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserRepository {
+/* package */ class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserRepository {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserRepositoryJdbc.class);
 
   private static final String GET_USER_BY_USERNAME     = "GET_USER_BY_USERNAME";
@@ -30,6 +31,8 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
   private static final String LOGIN_SUCCESSFUL         = "LOGIN_SUCCESSFUL";
   private static final String USER_LOCK                = "USER_LOCK";
   private static final String USER_UNLOCK              = "USER_UNLOCK";
+
+  private static final String GET_USERS = "GET_USERS";
 
   private final UserMapper USER_MAPPER = new UserMapper();
 
@@ -45,14 +48,14 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
   }
 
   @Override
-  public Optional<User> getUserByUsername(String username) throws IllegalArgumentException {
+  public Optional<UserEntity> getUserByUsername(String username) throws IllegalArgumentException {
     Assert.hasText(username, "Argument [username] cannot be null or empty");
 
     LOGGER.debug("Calling getUserByUsername [{}].", username);
 
     StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    List<User> users = getJdbcTemplate().query(
+    List<UserEntity> users = getJdbcTemplate().query(
         stmtLoader.load(GET_USER_BY_USERNAME),
         new MapSqlParameterSource("username", username),
         USER_MAPPER);
@@ -70,7 +73,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
 
   @Override
   @Transactional
-  public User incrementLoginAttempts(User user) throws IllegalArgumentException {
+  public UserEntity incrementLoginAttempts(UserEntity user) throws IllegalArgumentException {
     Assert.notNull(user, "Argument [user] cannot be null");
 
     LOGGER.debug("Calling incrementLoginAttempts for User [{}].", user.username());
@@ -92,7 +95,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
 
   @Override
   @Transactional
-  public User loginSuccessful(User user, String ipAddress) throws IllegalArgumentException {
+  public UserEntity loginSuccessful(UserEntity user, String ipAddress) throws IllegalArgumentException {
     Assert.notNull(user, "Argument [user] cannot be null");
 
     LOGGER.debug("Calling loginSuccessful for User [{}].", user.username());
@@ -113,7 +116,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
 
   @Override
   @Transactional
-  public User lockUserAccount(long userId, User user) {
+  public UserEntity lockUserAccount(long userId, UserEntity user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
     LOGGER.debug("Calling lockUserAccount for User [{}].", user.username());
@@ -134,7 +137,7 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
 
   @Override
   @Transactional
-  public User unlockUserAccount(long userId, User user) {
+  public UserEntity unlockUserAccount(long userId, UserEntity user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
     LOGGER.debug("Calling unlockUserAccount for User [{}].", user.username());
@@ -151,5 +154,14 @@ public class UserRepositoryJdbc extends BaseRepositoryJdbc implements UserReposi
     }
 
     return user.toBuilder().lockedDateTime(null).loginAttempts(0).build();
+  }
+
+  @Override
+  public Flux<UserEntity> getUsers() {
+    LOGGER.debug("Calling getUsers");
+
+    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+
+    return Flux.fromIterable(getJdbcTemplate().query(stmtLoader.load(GET_USERS), USER_MAPPER));
   }
 }

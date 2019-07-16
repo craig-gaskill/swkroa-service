@@ -21,8 +21,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Handles and retrieves {@link Dictionary} and {@link DictionaryValue} objects depending on the URI
- * template.
+ * Handles endpoints for retrieving and persisting {@link Dictionary} and {@link DictionaryValue} objects.
  *
  * @author Craig Gaskill
  */
@@ -39,7 +38,7 @@ public class DictionaryResource {
   }
 
   /**
-   * Handles the request and retrieves the {@link Dictionary}s within the system.
+   * Handles the request to retrieve the {@link Dictionary}s within the system.
    *
    * @return A JSON representation of the {@link Dictionary} within the system.
    */

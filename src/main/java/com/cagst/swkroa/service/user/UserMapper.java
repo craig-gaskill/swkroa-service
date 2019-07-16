@@ -12,8 +12,9 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author Craig Gaskill
  */
-/* package */final class UserMapper implements RowMapper<User> {
+/* package */final class UserMapper implements RowMapper<UserEntity> {
   private static final String USER_ID              = "user_id";
+  private static final String PERSON_ID            = "person_id";
   private static final String USERNAME             = "username";
   private static final String PASSWORD             = "password";
   private static final String TEMPORARY_PWD_IND    = "temporary_pwd_ind";
@@ -29,10 +30,12 @@ import org.springframework.jdbc.core.RowMapper;
   private static final String ACTIVE_IND   = "active_ind";
   private static final String UPDT_CNT     = "updt_cnt";
 
+
   @Override
-  public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return User.builder()
+  public UserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+    return UserEntity.builder()
         .userId(rs.getLong(USER_ID))
+        .personId(rs.getLong(PERSON_ID))
         .username(rs.getString(USERNAME))
         .password(rs.getString(PASSWORD))
         .temporary(rs.getBoolean(TEMPORARY_PWD_IND))

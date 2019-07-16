@@ -42,6 +42,15 @@ import reactor.core.publisher.Mono;
   }
 
   @Override
+  public Mono<Dictionary> getDictionaryByType(DictionaryType dictionaryType) {
+    Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
+
+    LOGGER.debug("Calling getDictionaryByType for [{}]", dictionaryType);
+
+    return dictionaryRepository.getDictionaryByType(dictionaryType);
+  }
+
+  @Override
   public Flux<DictionaryValue> getDictionaryValuesForDictionaryType(DictionaryType dictionaryType) {
     Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
 

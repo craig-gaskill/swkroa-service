@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -106,7 +107,31 @@ class DictionaryServiceImplTest {
     @Nested
     @DisplayName("by Type")
     class ByType {
+      @Test
+      @DisplayName("should return an empty optional when not found")
+      void testNotFound() {
+        when(dictionaryRepository.getDictionaryByType(any(DictionaryType.class))).thenReturn(Mono.empty());
 
+        service.getDictionaryByType(DictionaryType.ADDRESS_TYPE)
+            .subscribe(dictionary -> assertNull(dictionary, "Ensure the dictionary was not found"));
+      }
+
+      @Test
+      @DisplayName("should return a populated optional when found")
+      void testFound() {
+        Dictionary d1 = Dictionary.builder()
+            .dictionaryId(1L)
+            .display("Address Type")
+            .meaning("ADDRESS_TYPE")
+            .build();
+
+        when(dictionaryRepository.getDictionaryByType(DictionaryType.ADDRESS_TYPE)).thenReturn(Mono.just(d1));
+
+        service.getDictionaryByType(DictionaryType.ADDRESS_TYPE)
+            .subscribe(dictionary -> assertAll("Ensure the dictionary",
+                () -> assertNotNull(dictionary, "was found"),
+                () -> assertEquals("ADDRESS_TYPE", dictionary.meaning(), "is the correct dictionary")));
+      }
     }
   }
 
@@ -172,6 +197,14 @@ class DictionaryServiceImplTest {
           .display("New")
           .meaning("NEW")
           .build();
+
+      DictionaryValue insertedValue = newValue.toBuilder().dictionaryValueId(101L).build();
+      when(dictionaryRepository.insertDictionaryValue(anyLong(), anyLong(), eq(Mono.just(newValue))))
+          .thenReturn(Mono.just(insertedValue));
+
+//      service.insertDictionaryValue(1L, DictionaryType.ADDRESS_TYPE, Mono.just(newValue))
+//          .subscribe(inserted -> assertAll("Ensure the dictionary value"),
+//              () -> assertNotNull(inserted, "was inserted"));
     }
   }
 

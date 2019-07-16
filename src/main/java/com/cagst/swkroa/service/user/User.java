@@ -2,7 +2,7 @@ package com.cagst.swkroa.service.user;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.cagst.swkroa.service.person.Person;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Builder;
@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
  */
 @JsonPropertyOrder({
     "userId",
+    "person",
     "username",
     "userType",
     "lastLoginDateTime",
@@ -34,11 +35,11 @@ public class User {
   @JsonProperty("userId")
   private Long userId;
 
+  @JsonProperty("person")
+  private Person person;
+
   @JsonProperty("username")
   private String username;
-
-  @JsonIgnore
-  private String password;
 
   @JsonProperty("userType")
   private UserType userType;
@@ -48,9 +49,6 @@ public class User {
 
   @JsonProperty("lastLoginIp")
   private String lastLoginIp;
-
-  @JsonIgnore
-  private long loginAttempts;
 
   @JsonProperty("temporary")
   private boolean temporary;

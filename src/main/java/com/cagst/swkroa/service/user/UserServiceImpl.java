@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -17,7 +18,7 @@ import reactor.core.publisher.Mono;
  * @author Craig Gaskill
  */
 @Service
-public class UserServiceImpl implements UserService {
+/* package */ class UserServiceImpl implements UserService {
   private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
   private final UserRepository userRepository;
@@ -35,15 +36,15 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Mono<User> loginAttempt(String username, String password, String remoteAddress) {
-    Optional<User> findUser = userRepository.getUserByUsername(username);
-    if (!findUser.isPresent()) {
+    Optional<UserEntity> findUser = userRepository.getUserByUsername(username);
+    if (findUser.isEmpty()) {
       LOGGER.warn("Username [{}] was not found.", username);
       loginFailure(username, "User not found.");
       return Mono.empty();
     }
 
     // increment the login attempts
-    User user = userRepository.incrementLoginAttempts(findUser.get());
+    UserEntity user = userRepository.incrementLoginAttempts(findUser.get());
 
     // validate the password
     if (!passwordEncoder.matches(password, user.password())) {
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // retrieve SecurityPolicy for user
-    SecurityPolicy securityPolicy = securityService.getSecurityPolicy(user);
+    SecurityPolicy securityPolicy = securityService.getDefaultSecurityPolicy();
 
     // check to see if the account is already locked and should therefore be unlocked
     int lockedInMinutes = securityPolicy.lockedInMinutes();
@@ -62,7 +63,7 @@ public class UserServiceImpl implements UserService {
       LocalDateTime unlockAfter = lockedDateTime.plusMinutes(lockedInMinutes);
 
       if (LocalDateTime.now().isAfter(unlockAfter)) {
-        user = unlockAccount(user.userId(), user);
+        user = userRepository.unlockUserAccount(user.userId(), user);
         LOGGER.debug("User account [{}] was unlocked", username);
       }
     }
@@ -73,19 +74,18 @@ public class UserServiceImpl implements UserService {
       // and we have exceeded the number of maximum attempts
       // then lock the account.
       if (securityPolicy.maxAttempts() > 0 && user.loginAttempts() > securityPolicy.maxAttempts()) {
-        user = lockAccount(user.userId(), user);
+        user = userRepository.lockUserAccount(user.userId(), user);
         LOGGER.warn("User account [{}] was locked", username);
       }
     }
 
-    user = loginSuccessful(user, remoteAddress);
-
-    return Mono.just(user);
+    User loggedInUser = loginSuccessful(UserConverter.convert(user, null), remoteAddress);
+    return Mono.just(loggedInUser);
   }
 
   @Override
   public User loginSuccessful(User user, String ipAddress) throws IllegalArgumentException {
-    User signedInUser = userRepository.loginSuccessful(user, ipAddress);
+    UserEntity signedInUser = userRepository.loginSuccessful(UserConverter.convert(user), ipAddress);
 
 //    List<Role> roles = roleRepo.getRolesForUser(signedInUser);
 //    if (CollectionUtils.isEmpty(roles)) {
@@ -97,7 +97,7 @@ public class UserServiceImpl implements UserService {
 //      }
 //    }
 
-    return signedInUser;
+    return UserConverter.convert(signedInUser, null);
   }
 
   @Override
@@ -107,11 +107,19 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public User lockAccount(long userId, User user) {
-    return userRepository.lockUserAccount(userId, user);
+    UserEntity lockedUser = userRepository.lockUserAccount(userId, UserConverter.convert(user));
+    return UserConverter.convert(lockedUser, null);
   }
 
   @Override
   public User unlockAccount(long userId, User user) {
-    return userRepository.unlockUserAccount(userId, user);
+    UserEntity unlockedUser = userRepository.unlockUserAccount(userId, UserConverter.convert(user));
+    return UserConverter.convert(unlockedUser, null);
+  }
+
+  @Override
+  public Flux<User> getUsers() {
+    return userRepository.getUsers()
+        .map(user -> UserConverter.convert(user, null));
   }
 }

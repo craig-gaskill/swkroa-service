@@ -1,49 +1,51 @@
 package com.cagst.swkroa.service.user;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.cagst.swkroa.service.security.SecurityPolicy;
+import reactor.core.publisher.Flux;
 
 /**
- * Definition of a repository that retrieves and persists {@link User} objects.
+ * Definition of a repository that retrieves and persists {@link UserEntity} objects.
  *
  * @author Craig Gaskill
  */
 public interface UserRepository {
   /**
-   * Retrieves a {@link User} based upon the specified username.
+   * Retrieves a {@link UserEntity} based upon the specified username.
    *
    * @param username
-   *   The {@link String} username that identifies the {@link User} to retrieve.
+   *   The {@link String} username that identifies the {@link UserEntity} to retrieve.
    *
-   * @return An {@link Optional} that may contain the {@link User} associated to the specified username.
+   * @return An {@link Optional} that may contain the {@link UserEntity} associated to the specified username.
    */
-  Optional<User> getUserByUsername(String username);
+  Optional<UserEntity> getUserByUsername(String username);
 
   /**
-   * Updates the {@link User} account for a login attempt.
+   * Updates the {@link UserEntity} account for a login attempt.
    *
    * @param user
-   *   The {@link User} attempting to login.
+   *   The {@link UserEntity} attempting to login.
    *
-   * @return The {@link User} that has been updated accordingly.
+   * @return The {@link UserEntity} that has been updated accordingly.
    */
-  User incrementLoginAttempts(User user);
+  UserEntity incrementLoginAttempts(UserEntity user);
 
   /**
-   * Updates the {@link User} account for a successful login.
+   * Updates the {@link UserEntity} account for a successful login.
    *
    * @param user
-   *     The {@link User} to update.
+   *     The {@link UserEntity} to update.
    * @param ipAddress
    *     The ipAddress where the user was when they successfully logged in.
    *
-   * @return The {@link User} that has been updated accordingly.
+   * @return The {@link UserEntity} that has been updated accordingly.
    *
    * @throws IllegalArgumentException
-   *     if <code>user</code> is null
+   *     if <code>UserEntity</code> is null
    */
-  User loginSuccessful(User user, String ipAddress) throws IllegalArgumentException;
+  UserEntity loginSuccessful(UserEntity user, String ipAddress) throws IllegalArgumentException;
 
   /**
    * Locks the user account as of NOW. Used primarily when the user has exceeded their sign-in
@@ -52,11 +54,11 @@ public interface UserRepository {
    * @param userId
    *   Uniquely identifies the user performing the request.
    * @param user
-   *   The {@link User} who's account is to be locked.
+   *   The {@link UserEntity} who's account is to be locked.
    *
-   * @return The {@link User} that has been locked and updated accordingly.
+   * @return The {@link UserEntity} that has been locked and updated accordingly.
    */
-  User lockUserAccount(long userId, User user);
+  UserEntity lockUserAccount(long userId, UserEntity user);
 
   /**
    * Unlocks the user account as of NOW. Used by the system to automatically unlock a user account
@@ -66,9 +68,17 @@ public interface UserRepository {
    * @param userId
    *   Uniquely identifies the user performing the request.
    * @param user
-   *   The {@link User} who's account is to be unlocked.
+   *   The {@link UserEntity} who's account is to be unlocked.
    *
-   * @return The {@link User} that has been successfully unlocked and updated accordingly.
+   * @return The {@link UserEntity} that has been successfully unlocked and updated accordingly.
    */
-  User unlockUserAccount(long userId, User user);
+  UserEntity unlockUserAccount(long userId, UserEntity user);
+
+  /**
+   * Retrieves a {@link List} of all {@link UserEntity Users} that are in the system.
+   *
+   * @return A {@link List} of {@link UserEntity Users} defined in the system.
+   */
+  Flux<UserEntity> getUsers();
+
 }

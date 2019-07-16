@@ -59,7 +59,8 @@ public class SecurityServiceImpl implements SecurityService {
     return getDefaultSecurityPolicy();
   }
 
-  private SecurityPolicy getDefaultSecurityPolicy() {
+  @Override
+  public SecurityPolicy getDefaultSecurityPolicy() {
     if (null == defaultSecurityPolicy) {
       defaultSecurityPolicy = SecurityPolicy.builder()
           .name("Default")
