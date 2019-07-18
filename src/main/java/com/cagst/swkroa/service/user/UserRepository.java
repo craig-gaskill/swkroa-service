@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.cagst.swkroa.service.security.SecurityPolicy;
+import org.springframework.lang.NonNull;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Definition of a repository that retrieves and persists {@link UserEntity} objects.
@@ -20,7 +22,7 @@ public interface UserRepository {
    *
    * @return An {@link Optional} that may contain the {@link UserEntity} associated to the specified username.
    */
-  Optional<UserEntity> getUserByUsername(String username);
+  Mono<UserEntity> getUserByUsername(@NonNull String username);
 
   /**
    * Updates the {@link UserEntity} account for a login attempt.
@@ -30,7 +32,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been updated accordingly.
    */
-  UserEntity incrementLoginAttempts(UserEntity user);
+  Mono<UserEntity> incrementLoginAttempts(Mono<UserEntity> user);
 
   /**
    * Updates the {@link UserEntity} account for a successful login.
@@ -41,11 +43,8 @@ public interface UserRepository {
    *     The ipAddress where the user was when they successfully logged in.
    *
    * @return The {@link UserEntity} that has been updated accordingly.
-   *
-   * @throws IllegalArgumentException
-   *     if <code>UserEntity</code> is null
    */
-  UserEntity loginSuccessful(UserEntity user, String ipAddress) throws IllegalArgumentException;
+  Mono<UserEntity> loginSuccessful(Mono<UserEntity> user, String ipAddress);
 
   /**
    * Locks the user account as of NOW. Used primarily when the user has exceeded their sign-in
@@ -58,7 +57,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been locked and updated accordingly.
    */
-  UserEntity lockUserAccount(long userId, UserEntity user);
+  Mono<UserEntity> lockUserAccount(long userId, Mono<UserEntity> user);
 
   /**
    * Unlocks the user account as of NOW. Used by the system to automatically unlock a user account
@@ -72,7 +71,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been successfully unlocked and updated accordingly.
    */
-  UserEntity unlockUserAccount(long userId, UserEntity user);
+  Mono<UserEntity> unlockUserAccount(long userId, Mono<UserEntity> user);
 
   /**
    * Retrieves a {@link List} of all {@link UserEntity Users} that are in the system.

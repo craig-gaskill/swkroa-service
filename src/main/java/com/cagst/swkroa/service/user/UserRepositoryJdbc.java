@@ -2,7 +2,6 @@ package com.cagst.swkroa.service.user;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
@@ -12,10 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * A JDBC Implementation of the {@link UserRepository} interface.
@@ -48,112 +49,117 @@ import reactor.core.publisher.Flux;
   }
 
   @Override
-  public Optional<UserEntity> getUserByUsername(String username) throws IllegalArgumentException {
+  public Mono<UserEntity> getUserByUsername(@NonNull String username) {
     Assert.hasText(username, "Argument [username] cannot be null or empty");
 
     LOGGER.debug("Calling getUserByUsername [{}].", username);
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+    StatementLoader loader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
     List<UserEntity> users = getJdbcTemplate().query(
-        stmtLoader.load(GET_USER_BY_USERNAME),
+        loader.load(GET_USER_BY_USERNAME),
         new MapSqlParameterSource("username", username),
         USER_MAPPER);
 
     if (users.size() == 1) {
-      return Optional.of(users.get(0));
+      return Mono.just(users.get(0));
     } else if (users.size() == 0) {
       LOGGER.warn("User [{}] was not found!", username);
-      return Optional.empty();
+      return Mono.empty();
     } else {
       LOGGER.error("More than 1 user with username of [{}] was found!", username);
-      return Optional.empty();
+      return Mono.empty();
     }
   }
 
   @Override
   @Transactional
-  public UserEntity incrementLoginAttempts(UserEntity user) throws IllegalArgumentException {
+  public Mono<UserEntity> incrementLoginAttempts(Mono<UserEntity> user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.debug("Calling incrementLoginAttempts for User [{}].", user.username());
+    StatementLoader loader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+    return user.flatMap(usr -> {
+      LOGGER.debug("Calling incrementLoginAttempts for User [{}].", usr.username());
 
-    int cnt = getJdbcTemplate().update(
-        stmtLoader.load(INCREMENT_LOGIN_ATTEMPTS),
-        new MapSqlParameterSource("user_id", user.userId()));
-
-    if (cnt != 1L) {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
-
-    return user.toBuilder()
-        .loginAttempts(user.loginAttempts() + 1)
-        .build();
+      int cnt = getJdbcTemplate().update(loader.load(INCREMENT_LOGIN_ATTEMPTS), new MapSqlParameterSource("user_id", usr.userId()));
+      if (cnt != 1L) {
+        return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
+      } else {
+        return Mono.just(usr.toBuilder()
+            .loginAttempts(usr.loginAttempts() + 1)
+            .build());
+      }
+    });
   }
 
   @Override
   @Transactional
-  public UserEntity loginSuccessful(UserEntity user, String ipAddress) throws IllegalArgumentException {
+  public Mono<UserEntity> loginSuccessful(Mono<UserEntity> user, String ipAddress) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.debug("Calling loginSuccessful for User [{}].", user.username());
+    StatementLoader loader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+    return user.flatMap(usr -> {
+      LOGGER.debug("Calling loginSuccessful for User [{}].", usr.username());
 
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("user_id", user.userId());
-    params.addValue("last_signin_ip", ipAddress);
+      MapSqlParameterSource params = new MapSqlParameterSource();
+      params.addValue("user_id", usr.userId());
+      params.addValue("last_signin_ip", ipAddress);
 
-    int cnt = getJdbcTemplate().update(stmtLoader.load(LOGIN_SUCCESSFUL), params);
-    if (cnt != 1) {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
-
-    return user.toBuilder().loginAttempts(0L).build();
+      int cnt = getJdbcTemplate().update(loader.load(LOGIN_SUCCESSFUL), params);
+      if (cnt != 1) {
+        return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
+      } else {
+        return Mono.just(usr.toBuilder().loginAttempts(0L).build());
+      }
+    });
   }
 
   @Override
   @Transactional
-  public UserEntity lockUserAccount(long userId, UserEntity user) {
+  public Mono<UserEntity> lockUserAccount(long userId, Mono<UserEntity> user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.debug("Calling lockUserAccount for User [{}].", user.username());
+    return user.flatMap(usr -> {
+      LOGGER.debug("Calling lockUserAccount for User [{}].", usr.username());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+      StatementLoader loader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("user_id", user.userId());
-    params.addValue("updt_id", userId);
+      MapSqlParameterSource params = new MapSqlParameterSource();
+      params.addValue("user_id", usr.userId());
+      params.addValue("updt_id", userId);
 
-    int cnt = getJdbcTemplate().update(stmtLoader.load(USER_LOCK), params);
-    if (cnt != 1) {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
-
-    return user.toBuilder().lockedDateTime(LocalDateTime.now()).build();
+      int cnt = getJdbcTemplate().update(loader.load(USER_LOCK), params);
+      if (cnt != 1) {
+        return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
+      } else {
+        return Mono.just(usr.toBuilder().lockedDateTime(LocalDateTime.now()).build());
+      }
+    });
   }
 
   @Override
   @Transactional
-  public UserEntity unlockUserAccount(long userId, UserEntity user) {
+  public Mono<UserEntity> unlockUserAccount(long userId, Mono<UserEntity> user) {
     Assert.notNull(user, "Argument [user] cannot be null");
 
-    LOGGER.debug("Calling unlockUserAccount for User [{}].", user.username());
+    return user.flatMap(usr -> {
+      LOGGER.debug("Calling unlockUserAccount for User [{}].", usr.username());
 
-    StatementLoader stmtLoader = StatementLoader.getLoader(getClass(), getStatementDialect());
+      StatementLoader loader = StatementLoader.getLoader(getClass(), getStatementDialect());
 
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("user_id", user.userId());
-    params.addValue("updt_id", userId);
+      MapSqlParameterSource params = new MapSqlParameterSource();
+      params.addValue("user_id", usr.userId());
+      params.addValue("updt_id", userId);
 
-    int cnt = getJdbcTemplate().update(stmtLoader.load(USER_UNLOCK), params);
-    if (cnt != 1) {
-      throw new IncorrectResultSizeDataAccessException(1, cnt);
-    }
-
-    return user.toBuilder().lockedDateTime(null).loginAttempts(0).build();
+      int cnt = getJdbcTemplate().update(loader.load(USER_UNLOCK), params);
+      if (cnt != 1) {
+        return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
+      } else {
+        return Mono.just(usr.toBuilder().lockedDateTime(null).loginAttempts(0).build());
+      }
+    });
   }
 
   @Override

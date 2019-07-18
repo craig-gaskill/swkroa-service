@@ -1,7 +1,6 @@
 package com.cagst.swkroa.service.user;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import com.cagst.swkroa.service.security.SecurityPolicy;
 import com.cagst.swkroa.service.security.SecurityService;
@@ -36,85 +35,63 @@ import reactor.core.publisher.Mono;
 
   @Override
   public Mono<User> loginAttempt(String username, String password, String remoteAddress) {
-    Optional<UserEntity> findUser = userRepository.getUserByUsername(username);
-    if (findUser.isEmpty()) {
-      LOGGER.warn("Username [{}] was not found.", username);
-      loginFailure(username, "User not found.");
-      return Mono.empty();
-    }
+    LOGGER.debug("Calling loginAttempt for [{}]", username);
 
-    // increment the login attempts
-    UserEntity user = userRepository.incrementLoginAttempts(findUser.get());
-
-    // validate the password
-    if (!passwordEncoder.matches(password, user.password())) {
-      LOGGER.warn("Invalid password for user [{}]", username);
-      loginFailure(username, "Password invalid");
-      return Mono.empty();
-    }
-
-    // retrieve SecurityPolicy for user
+    // retrieve the SecurityPolicy
     SecurityPolicy securityPolicy = securityService.getDefaultSecurityPolicy();
 
-    // check to see if the account is already locked and should therefore be unlocked
-    int lockedInMinutes = securityPolicy.lockedInMinutes();
-    if (user.lockedDateTime() != null && lockedInMinutes > 0) {
-      LocalDateTime lockedDateTime = user.lockedDateTime();
-      LocalDateTime unlockAfter = lockedDateTime.plusMinutes(lockedInMinutes);
+    return userRepository.getUserByUsername(username)
+        .flatMap(usr -> userRepository.incrementLoginAttempts(Mono.just(usr)))
+        .flatMap(usr -> {
+          // validate the password
+          if (!passwordEncoder.matches(password, usr.password())) {
+            LOGGER.warn("Invalid password for user [{}]", username);
 
-      if (LocalDateTime.now().isAfter(unlockAfter)) {
-        user = userRepository.unlockUserAccount(user.userId(), user);
-        LOGGER.debug("User account [{}] was unlocked", username);
-      }
-    }
+            // if the account isn't locked, see if it needs to be locked (because they exceeded their login attempts)
+            if (usr.lockedDateTime() == null) {
+              // if the security policy has a maximum number of login attempts > 0
+              // and we have exceeded the number of maximum attempts
+              // then lock the account.
+              if (securityPolicy.maxAttempts() > 0 && usr.loginAttempts() > securityPolicy.maxAttempts()) {
+                LOGGER.warn("User account [{}] was locked", username);
+                return userRepository.lockUserAccount(usr.userId(), Mono.just(usr));
+              }
+            }
 
-    // if the account isn't locked, see if it needs to be locked (because they exceeded their login attempts)
-    if (user.lockedDateTime() == null) {
-      // if the security policy has a maximum number of login attempts > 0
-      // and we have exceeded the number of maximum attempts
-      // then lock the account.
-      if (securityPolicy.maxAttempts() > 0 && user.loginAttempts() > securityPolicy.maxAttempts()) {
-        user = userRepository.lockUserAccount(user.userId(), user);
-        LOGGER.warn("User account [{}] was locked", username);
-      }
-    }
+            return Mono.empty();
+          } else {
+            return Mono.just(usr);
+          }
+        })
+        .flatMap(usr -> {
+          // check to see if the account is already locked and should therefore be unlocked
+          int lockedInMinutes = securityPolicy.lockedInMinutes();
+          if (usr.lockedDateTime() != null && lockedInMinutes > 0) {
+            LocalDateTime lockedDateTime = usr.lockedDateTime();
+            LocalDateTime unlockAfter = lockedDateTime.plusMinutes(lockedInMinutes);
 
-    User loggedInUser = loginSuccessful(UserConverter.convert(user, null), remoteAddress);
-    return Mono.just(loggedInUser);
+            if (LocalDateTime.now().isAfter(unlockAfter)) {
+              LOGGER.debug("User account [{}] was unlocked", username);
+              return userRepository.unlockUserAccount(usr.userId(), Mono.just(usr));
+            }
+          }
+
+          return Mono.just(usr);
+        })
+        .flatMap(usr -> userRepository.loginSuccessful(Mono.just(usr), remoteAddress))
+        .map(usr -> UserConverter.convert(usr, null));
   }
 
   @Override
-  public User loginSuccessful(User user, String ipAddress) throws IllegalArgumentException {
-    UserEntity signedInUser = userRepository.loginSuccessful(UserConverter.convert(user), ipAddress);
-
-//    List<Role> roles = roleRepo.getRolesForUser(signedInUser);
-//    if (CollectionUtils.isEmpty(roles)) {
-//      LOGGER.warn("No roles found for user [{}].", signedInUser.getUsername());
-//    } else {
-//      for (Role role : roles) {
-//        user.addRole(role);
-//        user.addGrantedAuthority(role.getRoleKey());
-//      }
-//    }
-
-    return UserConverter.convert(signedInUser, null);
+  public Mono<User> lockAccount(long userId, Mono<User> user) {
+    return user.flatMap(usr -> userRepository.lockUserAccount(userId, Mono.just(UserConverter.convert(usr)))
+          .map(u -> UserConverter.convert(u, usr.person())));
   }
 
   @Override
-  public void loginFailure(String username, String message) throws IllegalArgumentException {
-
-  }
-
-  @Override
-  public User lockAccount(long userId, User user) {
-    UserEntity lockedUser = userRepository.lockUserAccount(userId, UserConverter.convert(user));
-    return UserConverter.convert(lockedUser, null);
-  }
-
-  @Override
-  public User unlockAccount(long userId, User user) {
-    UserEntity unlockedUser = userRepository.unlockUserAccount(userId, UserConverter.convert(user));
-    return UserConverter.convert(unlockedUser, null);
+  public Mono<User> unlockAccount(long userId, Mono<User> user) {
+    return user.flatMap(usr -> userRepository.unlockUserAccount(userId, Mono.just(UserConverter.convert(usr)))
+        .map(u -> UserConverter.convert(u, usr.person())));
   }
 
   @Override
