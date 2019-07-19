@@ -1,6 +1,6 @@
 package com.cagst.swkroa.service.person;
 
-import java.util.Set;
+import java.util.Collection;
 
 import reactor.core.publisher.Flux;
 
@@ -12,12 +12,12 @@ import reactor.core.publisher.Flux;
 public interface PersonRepository {
     /**
      * Retrieves a {@link Flux} of {@link Person} that are associated with the specified
-     * {@link Set} of unique person identifiers.
+     * {@link Collection} of unique person identifiers.
      *
      * @param personIds
-     *      The {@link Set} of unique identifiers to retrieve people for.
+     *      The {@link Collection} of unique identifiers to retrieve people for.
      *
      * @return A {@link Flux} of {@link Person} that are associated with the specified set of unique ids.
      */
-    Flux<Person> getPeopleByIds(Set<Long> personIds);
+    Flux<Person> getPeopleByIds(Collection<Long> personIds);
 }

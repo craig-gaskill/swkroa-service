@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 /**
@@ -94,7 +93,7 @@ class UserRepositoryJdbcTest extends BaseTestRepository {
     @DisplayName("should increment the login attempts")
     void testIncrementLoginAttempt() {
       StepVerifier.create(repo.getUserByUsername("cgaskill")
-          .flatMap(usr -> repo.incrementLoginAttempts(Mono.just(usr)))
+          .flatMap(usr -> repo.incrementLoginAttempts(usr))
           .flatMap(__ -> repo.getUserByUsername("cgaskill"))
       ).assertNext(user -> assertAll("Ensure we found the correct user",
           () -> assertEquals("cgaskill", user.username(), "(check username)"),
@@ -112,7 +111,7 @@ class UserRepositoryJdbcTest extends BaseTestRepository {
       String ipAddress = "127.0.0.1";
 
       StepVerifier.create(repo.getUserByUsername("temp")
-          .flatMap(usr -> repo.loginSuccessful(Mono.just(usr), ipAddress))
+          .flatMap(usr -> repo.loginSuccessful(usr, ipAddress))
           .flatMap(__ -> repo.getUserByUsername("temp"))
       ).assertNext(user -> assertAll("Ensure the User",
           () -> assertEquals("temp", user.username(), "is the correct user"),
@@ -129,7 +128,7 @@ class UserRepositoryJdbcTest extends BaseTestRepository {
     @DisplayName("should lock the User's account")
     void testLockUserAccount() {
       StepVerifier.create(repo.getUserByUsername("cgaskill")
-          .flatMap(usr -> repo.lockUserAccount(1L, Mono.just(usr)))
+          .flatMap(usr -> repo.lockUserAccount(1L, usr))
           .flatMap(__ -> repo.getUserByUsername("cgaskill"))
       ).assertNext(user -> assertAll("Ensure the user account",
           () -> assertNotNull(user, "is valid"),
@@ -145,7 +144,7 @@ class UserRepositoryJdbcTest extends BaseTestRepository {
     @DisplayName("should unlock the Users' account")
     void testUnlockUserAccount() {
       StepVerifier.create(repo.getUserByUsername("locked")
-          .flatMap(usr -> repo.unlockUserAccount(1L, Mono.just(usr)))
+          .flatMap(usr -> repo.unlockUserAccount(1L, usr))
           .flatMap(__ -> repo.getUserByUsername("locked"))
       ).assertNext(user -> assertAll("Ensure the user account",
           () -> assertNotNull(user, "is valid"),

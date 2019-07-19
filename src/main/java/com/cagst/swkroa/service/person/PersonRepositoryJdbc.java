@@ -3,8 +3,8 @@ package com.cagst.swkroa.service.person;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import com.cagst.common.jdbc.BaseRepositoryJdbc;
 import com.cagst.common.jdbc.StatementLoader;
@@ -36,7 +36,7 @@ import reactor.core.publisher.Flux;
     }
 
     @Override
-    public Flux<Person> getPeopleByIds(Set<Long> personIds) {
+    public Flux<Person> getPeopleByIds(Collection<Long> personIds) {
         Assert.notEmpty(personIds, "Argument [personIds] cannot be null or empty.");
 
         LOGGER.debug("Calling getPeopleByIds for [{}].", personIds);

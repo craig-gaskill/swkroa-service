@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
  * @author Craig Gaskill
  */
 @RestController
-@RequestMapping(value = "dictionaries", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "dictionaries")
 public class DictionaryResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryResource.class);
 
@@ -42,7 +42,7 @@ public class DictionaryResource {
    *
    * @return A JSON representation of the {@link Dictionary} within the system.
    */
-  @GetMapping
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<Dictionary> getDictionaries() {
     LOGGER.debug("Received request to getDictionaries");
 
@@ -57,7 +57,7 @@ public class DictionaryResource {
    *
    * @return A JSON representation of the {@link Dictionary}.
    */
-  @GetMapping("{id}")
+  @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<ResponseEntity<Dictionary>> getDictionary(@PathVariable long id) {
     Assert.isTrue(id > 0, "Argument [id] must be greater than 0.");
 
@@ -76,7 +76,7 @@ public class DictionaryResource {
    *
    * @return A JSON representation of the DictionaryValue associated to the specified Dictionary.
    */
-  @GetMapping("{dictionaryType}/values")
+  @GetMapping(value = "{dictionaryType}/values", produces = MediaType.APPLICATION_JSON_VALUE)
   public Flux<DictionaryValue> getDictionaryValues(@PathVariable DictionaryType dictionaryType) {
     Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
 
@@ -96,7 +96,7 @@ public class DictionaryResource {
    * @return A JSON representation after the DictionaryValue has been inserted.
    */
   @Transactional
-  @PostMapping("{dictionaryType}/values")
+  @PostMapping(value = "{dictionaryType}/values", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<ResponseEntity<DictionaryValue>> insertDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                                      @RequestBody Mono<DictionaryValue> dictionaryValue
   ) {
@@ -121,7 +121,7 @@ public class DictionaryResource {
    * @return A JSON representation after the DictionaryValue has been updated.
    */
   @Transactional
-  @PutMapping("{dictionaryType}/values/{id}")
+  @PutMapping(value = "{dictionaryType}/values/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<ResponseEntity<DictionaryValue>> updateDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                                      @PathVariable long id,
                                                                      @RequestBody Mono<DictionaryValue> dictionaryValue
@@ -145,7 +145,7 @@ public class DictionaryResource {
    *    The unique identifier of the DictionaryValue to delete.
    */
   @Transactional
-  @DeleteMapping("{dictionaryType}/values/{id}")
+  @DeleteMapping(value = "{dictionaryType}/values/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Mono<ResponseEntity<Void>> deleteDictionaryValue(@PathVariable DictionaryType dictionaryType,
                                                           @PathVariable long id
   ) {

@@ -16,7 +16,7 @@ import reactor.core.publisher.Flux;
  * @author Craig Gaskill
  */
 @RestController
-@RequestMapping(value = "users", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "users")
 public class UserResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
 
@@ -32,7 +32,7 @@ public class UserResource {
      *
      * @return A JSON representation of the {@link User}s within the system.
      */
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<User> getUsers() {
         LOGGER.debug("Received request to getUsers");
 

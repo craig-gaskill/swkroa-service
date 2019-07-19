@@ -1,5 +1,7 @@
 package com.cagst.swkroa.service.user;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -21,7 +23,7 @@ public interface UserService {
    *
    * @return A {@link User} if found.
    */
-  Mono<User> loginAttempt(String username, String password, String remoteAddress);
+  Mono<User> loginAttempt(@NonNull String username, @NonNull String password, @Nullable String remoteAddress);
 
   /**
    * Locks the user's account by setting the locked date on the user's account.

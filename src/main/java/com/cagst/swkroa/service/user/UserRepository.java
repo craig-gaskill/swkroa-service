@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.cagst.swkroa.service.security.SecurityPolicy;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +33,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been updated accordingly.
    */
-  Mono<UserEntity> incrementLoginAttempts(Mono<UserEntity> user);
+  Mono<UserEntity> incrementLoginAttempts(@NonNull UserEntity user);
 
   /**
    * Updates the {@link UserEntity} account for a successful login.
@@ -44,7 +45,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been updated accordingly.
    */
-  Mono<UserEntity> loginSuccessful(Mono<UserEntity> user, String ipAddress);
+  Mono<UserEntity> loginSuccessful(@NonNull UserEntity user, @Nullable String ipAddress);
 
   /**
    * Locks the user account as of NOW. Used primarily when the user has exceeded their sign-in
@@ -57,7 +58,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been locked and updated accordingly.
    */
-  Mono<UserEntity> lockUserAccount(long userId, Mono<UserEntity> user);
+  Mono<UserEntity> lockUserAccount(long userId, @NonNull UserEntity user);
 
   /**
    * Unlocks the user account as of NOW. Used by the system to automatically unlock a user account
@@ -71,7 +72,7 @@ public interface UserRepository {
    *
    * @return The {@link UserEntity} that has been successfully unlocked and updated accordingly.
    */
-  Mono<UserEntity> unlockUserAccount(long userId, Mono<UserEntity> user);
+  Mono<UserEntity> unlockUserAccount(long userId, @NonNull UserEntity user);
 
   /**
    * Retrieves a {@link List} of all {@link UserEntity Users} that are in the system.
