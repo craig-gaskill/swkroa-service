@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -133,90 +132,5 @@ class DictionaryServiceImplTest {
                 () -> assertEquals("ADDRESS_TYPE", dictionary.meaning(), "is the correct dictionary")));
       }
     }
-  }
-
-  @Nested
-  @DisplayName("when getting dictionary values")
-  class WhenGetDictionaryValues {
-    @Nested
-    @DisplayName("for a dictionary type")
-    class ForDictionaryType {
-      @Test
-      @DisplayName("should return an empty collection when none found")
-      void testNoneFound() {
-        when(dictionaryRepository.getDictionaryValuesForDictionaryType(any(DictionaryType.class)))
-            .thenReturn(Flux.empty());
-
-        service.getDictionaryValuesForDictionaryType(DictionaryType.ADDRESS_TYPE)
-            .collectList()
-            .subscribe(values -> assertAll("Ensure the list of values",
-                () -> assertNotNull(values, "is valid"),
-                () -> assertTrue(values.isEmpty(), "is empty (were not found)")));
-      }
-
-      @Test
-      @DisplayName("should return a populated collection when found")
-      void testFound() {
-        DictionaryValue v1 = DictionaryValue.builder()
-            .dictionaryValueId(1L)
-            .display("Home")
-            .meaning("HOME")
-            .build();
-        DictionaryValue v2 = DictionaryValue.builder()
-            .dictionaryValueId(2L)
-            .display("Work")
-            .meaning("WORK")
-            .build();
-
-        when(dictionaryRepository.getDictionaryValuesForDictionaryType(any(DictionaryType.class)))
-            .thenReturn(Flux.fromIterable(Arrays.asList(v1, v2)));
-
-        service.getDictionaryValuesForDictionaryType(DictionaryType.ADDRESS_TYPE)
-            .collectList()
-            .subscribe(values -> assertAll("Ensure the list of values",
-                () -> assertNotNull(values, "is valid"),
-                () -> assertFalse(values.isEmpty(), "is not empty (was found)"),
-                () -> assertEquals(2, values.size(), "has the correct number of values")));
-      }
-    }
-  }
-
-  @Nested
-  @DisplayName("when inserting a dictionary value")
-  class WhenCreateDictionaryValue {
-    @Test
-    @DisplayName("should ")
-    void testDuplicate() {
-
-    }
-
-    @Test
-    @DisplayName("should insert the dictionary value")
-    void testInsert() {
-      DictionaryValue newValue = DictionaryValue.builder()
-          .display("New")
-          .meaning("NEW")
-          .build();
-
-      DictionaryValue insertedValue = newValue.toBuilder().dictionaryValueId(101L).build();
-      when(dictionaryRepository.insertDictionaryValue(anyLong(), anyLong(), eq(Mono.just(newValue))))
-          .thenReturn(Mono.just(insertedValue));
-
-//      service.insertDictionaryValue(1L, DictionaryType.ADDRESS_TYPE, Mono.just(newValue))
-//          .subscribe(inserted -> assertAll("Ensure the dictionary value"),
-//              () -> assertNotNull(inserted, "was inserted"));
-    }
-  }
-
-  @Nested
-  @DisplayName("when updating a dictionary value")
-  class WhenUpdateDictionaryValue {
-
-  }
-
-  @Nested
-  @DisplayName("when deleting a dictionary value")
-  class WhenDeleteDictionaryValue {
-
   }
 }

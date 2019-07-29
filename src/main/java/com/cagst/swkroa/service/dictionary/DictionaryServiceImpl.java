@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * An implementation of the {@link DictionaryService}
+ * An implementation of the {@link DictionaryService} interface.
  *
  * @author Craig Gaskill
  */
@@ -48,63 +48,5 @@ import reactor.core.publisher.Mono;
     LOGGER.debug("Calling getDictionaryByType for [{}]", dictionaryType);
 
     return dictionaryRepository.getDictionaryByType(dictionaryType);
-  }
-
-  @Override
-  public Flux<DictionaryValue> getDictionaryValuesForDictionaryType(DictionaryType dictionaryType) {
-    Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
-
-    LOGGER.debug("Calling getDictionaryValuesForDictionaryType for [{}]", dictionaryType);
-
-    return dictionaryRepository.getDictionaryValuesForDictionaryType(dictionaryType);
-  }
-
-  @Override
-  public Mono<DictionaryValue> insertDictionaryValue(long userId,
-                                                     DictionaryType dictionaryType,
-                                                     Mono<DictionaryValue> dictionaryValue
-  ) {
-    Assert.isTrue(userId > 0, "Argument [userId] must be greater than 0.");
-    Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
-    Assert.notNull(dictionaryValue, "Argument [dictionaryValue] cannot be null.");
-
-    LOGGER.debug("Calling insertDictionaryValue for [{}]", dictionaryType);
-
-    return dictionaryRepository.getDictionaryByType(dictionaryType)
-        .flatMap(d -> dictionaryRepository.insertDictionaryValue(userId, d.dictionaryId(), dictionaryValue));
-  }
-
-  @Override
-  public Mono<DictionaryValue> updateDictionaryValue(long userId,
-                                                     DictionaryType dictionaryType,
-                                                     long dictionaryValueId,
-                                                     Mono<DictionaryValue> dictionaryValue
-  ) {
-    Assert.isTrue(userId > 0, "Argument [userId] must be greater than 0.");
-    Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
-    Assert.isTrue(dictionaryValueId > 0, "Argument [dictionaryValueId] must be greater than 0.");
-    Assert.notNull(dictionaryValue, "Argument [dictionaryValue] cannot be null.");
-
-    LOGGER.debug("Calling updateDictionaryValue for [{}, {}]", dictionaryType, dictionaryValueId);
-
-    return dictionaryRepository.getDictionaryValueById(dictionaryType, dictionaryValueId)
-        .flatMap(dv -> dictionaryRepository.updateDictionaryValue(userId, dictionaryValue));
-  }
-
-  @Override
-  public Mono<Void> deleteDictionaryValue(long userId,
-                                          DictionaryType dictionaryType,
-                                          long dictionaryValueId
-  ) {
-    Assert.notNull(dictionaryType, "Argument [dictionaryType] cannot be null.");
-    Assert.isTrue(dictionaryValueId > 0, "Argument [dictionaryValueId] must be greater than 0.");
-
-    LOGGER.debug("Received request to deleteDictionaryValue for [{}, {}]", dictionaryType, dictionaryValueId);
-
-    return dictionaryRepository.getDictionaryValueById(dictionaryType, dictionaryValueId)
-        .flatMap(dv -> {
-          dv = dv.toBuilder().active(false).build();
-          return dictionaryRepository.updateDictionaryValue(userId, Mono.just(dv)).then();
-        });
   }
 }

@@ -17,6 +17,13 @@
   <name>swkroa-service</name>
   <description>SWKROA REST Service</description>
 
+  <scm>
+    <connection>scm:git:https://github.com/craig-gaskill/swkroa-service</connection>
+    <developerConnection>scm:git:https://github.com/craig-gaskill/swkroa-service</developerConnection>
+    <url>https://github.com/craig-gaskill/swkroa-service</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -30,10 +37,6 @@
 
     <!-- JSON Web Token Libraries -->
     <jwt.version>3.5.0</jwt.version>
-
-    <!-- MySQL Libraries
-    <mysql.version>5.1.47</mysql.version>
-    -->
 
     <!--                      -->
     <!-- Testing Dependencies -->
@@ -101,7 +104,6 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <scope>runtime</scope>
-      <version>${mysql.version}</version>
     </dependency>
 
     <!--                      -->
@@ -206,5 +208,17 @@
     </plugins>
   </build>
 
+  <distributionManagement>
+    <repository>
+      <id>cagst-release</id>
+      <name>cagst.com-releases</name>
+      <url>http://www.cagst.com:51081/artifactory/cagst-release/</url>
+    </repository>
+    <snapshotRepository>
+      <id>cagst-snapshot</id>
+      <name>cagst.com-snapshots</name>
+      <url>http://www.cagst.com:51081/artifactory/cagst-snapshot/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>

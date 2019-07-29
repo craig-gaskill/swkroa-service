@@ -1,4 +1,4 @@
-package com.cagst.swkroa.service.dictionary;
+package com.cagst.swkroa.service.dictionary.value;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

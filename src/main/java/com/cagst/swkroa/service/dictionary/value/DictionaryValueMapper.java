@@ -1,4 +1,4 @@
-package com.cagst.swkroa.service.dictionary;
+package com.cagst.swkroa.service.dictionary.value;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
