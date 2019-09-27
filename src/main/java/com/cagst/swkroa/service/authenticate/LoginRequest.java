@@ -3,22 +3,22 @@ package com.cagst.swkroa.service.authenticate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.immutables.value.Value;
 
+@JsonDeserialize(builder = LoginRequest.Builder.class)
 @JsonPropertyOrder({
     "username",
     "password"
 })
-@Value
-@Accessors(fluent = true)
-@Builder(toBuilder = true)
-@JsonDeserialize(builder = LoginRequest.LoginRequestBuilder.class)
-public class LoginRequest {
+@Value.Immutable(copy = false)
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+public interface LoginRequest {
   @JsonProperty("username")
-  private String username;
+  String username();
 
   @JsonProperty("password")
-  private String password;
+  String password();
+
+  // static inner Builder class extends generated or yet-to-be generated Builder
+  class Builder extends ImmutableLoginRequest.Builder {}
 }

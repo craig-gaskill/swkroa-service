@@ -62,7 +62,7 @@ class TokenRepositoryJdbcTest extends BaseTestRepository {
     @Test
     @DisplayName("should insert a new token")
     void testInsert() {
-      Token newToken = Token.builder()
+      Token newToken = new Token.Builder()
           .tokenIdent(UUID.randomUUID())
           .userId(11L)
           .expiryDateTime(OffsetDateTime.now().plusMinutes(15))
@@ -89,7 +89,7 @@ class TokenRepositoryJdbcTest extends BaseTestRepository {
                     () -> assertNotNull(token, "was found"),
                     () -> assertFalse(token.used(), "hasn't been used"));
 
-            repo.updateToken(11L, token.toBuilder().used(true).build());
+            repo.updateToken(11L, new Token.Builder().from(token).used(true).build());
 
             repo.findTokenByIdent(11, "ec3981aa-f8a8-422d-a0b5-e389510ed63d")
                 .subscribe(updatedToken ->

@@ -3,12 +3,12 @@ package com.cagst.swkroa.service.security.token;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.cagst.swkroa.service.SwkroaBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
  * Represents a Token (refresh token).
@@ -24,32 +24,30 @@ import lombok.experimental.Accessors;
     "active",
     "updateCount"
 })
-@Value
-@Accessors(fluent = true)
-@Builder(toBuilder = true)
-@JsonDeserialize(builder = Token.TokenBuilder.class)
-public class Token {
+@JsonDeserialize(builder = Token.Builder.class)
+@Value.Immutable(copy = false)
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+public interface Token extends SwkroaBase {
+  @Nullable
+  @Value.Auxiliary
   @JsonProperty("tokenId")
-  private Long tokenId;
+  Long tokenId();
 
   @JsonProperty("tokenIdent")
-  private UUID tokenIdent;
+  UUID tokenIdent();
 
   @JsonProperty("userId")
-  private Long userId;
+  long userId();
 
   @JsonProperty("expiryDtTm")
-  private OffsetDateTime expiryDateTime;
+  OffsetDateTime expiryDateTime();
 
   @JsonProperty("used")
-  @Builder.Default
-  private boolean used = false;
+  @Value.Default
+  default boolean used() {
+    return false;
+  }
 
-  @JsonProperty("active")
-  @Builder.Default
-  private boolean active = true;
-
-  @JsonProperty("updateCount")
-  @Builder.Default
-  private long updateCount = 0L;
+  // static inner Builder class extends generated or yet-to-be generated Builder
+  class Builder extends ImmutableToken.Builder {}
 }

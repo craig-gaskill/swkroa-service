@@ -89,7 +89,8 @@ import reactor.core.publisher.Mono;
     if (cnt != 1L) {
       return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
     } else {
-      return Mono.just(user.toBuilder()
+      return Mono.just(new UserEntity.Builder()
+          .from(user)
           .loginAttempts(user.loginAttempts() + 1)
           .build());
     }
@@ -112,7 +113,7 @@ import reactor.core.publisher.Mono;
     if (cnt != 1) {
       return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
     } else {
-      return Mono.just(user.toBuilder().loginAttempts(0L).build());
+      return Mono.just(new UserEntity.Builder().from(user).loginAttempts(0L).build());
     }
   }
 
@@ -133,7 +134,7 @@ import reactor.core.publisher.Mono;
     if (cnt != 1) {
       return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
     } else {
-      return Mono.just(user.toBuilder().lockedDateTime(LocalDateTime.now()).build());
+      return Mono.just(new UserEntity.Builder().from(user).lockedDateTime(LocalDateTime.now()).build());
     }
   }
 
@@ -154,7 +155,7 @@ import reactor.core.publisher.Mono;
     if (cnt != 1) {
       return Mono.error(new IncorrectResultSizeDataAccessException(1, cnt));
     } else {
-      return Mono.just(user.toBuilder().lockedDateTime(null).loginAttempts(0).build());
+      return Mono.just(new UserEntity.Builder().from(user).lockedDateTime(null).loginAttempts(0).build());
     }
   }
 

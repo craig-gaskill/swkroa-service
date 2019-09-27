@@ -79,7 +79,8 @@ import reactor.core.publisher.Mono;
       throw new IncorrectResultSizeDataAccessException(1, cnt);
     }
 
-    return Mono.just(token.toBuilder()
+    return Mono.just(new Token.Builder()
+        .from(token)
         .tokenId(keyHolder.getKey().longValue())
         .build());
   }
@@ -95,7 +96,8 @@ import reactor.core.publisher.Mono;
         TokenMapper.mapForUpdate(userId, token));
 
     if (cnt == 1) {
-      return Mono.just(token.toBuilder()
+      return Mono.just(new Token.Builder()
+          .from(token)
           .updateCount(token.updateCount() + 1)
           .build());
     } else if (cnt == 0) {

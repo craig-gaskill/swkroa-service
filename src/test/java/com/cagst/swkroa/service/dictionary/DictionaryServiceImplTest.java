@@ -48,12 +48,12 @@ class DictionaryServiceImplTest {
     @Test
     @DisplayName("should return a populated collection when found")
     void testFound() {
-      Dictionary d1 = Dictionary.builder()
+      Dictionary d1 = new Dictionary.Builder()
           .dictionaryId(1L)
           .display("Address Type")
           .meaning("ADDRESS_TYPE")
           .build();
-      Dictionary d2 = Dictionary.builder()
+      Dictionary d2 = new Dictionary.Builder()
           .dictionaryId(2L)
           .display("Phone Type")
           .meaning("PHONE_TYPE")
@@ -88,7 +88,7 @@ class DictionaryServiceImplTest {
       @Test
       @DisplayName("should return a populated optional when found")
       void testFound() {
-        Dictionary d1 = Dictionary.builder()
+        Dictionary d1 = new Dictionary.Builder()
             .dictionaryId(1L)
             .display("Address Type")
             .meaning("ADDRESS_TYPE")
@@ -118,7 +118,7 @@ class DictionaryServiceImplTest {
       @Test
       @DisplayName("should return a populated optional when found")
       void testFound() {
-        Dictionary d1 = Dictionary.builder()
+        Dictionary d1 = new Dictionary.Builder()
             .dictionaryId(1L)
             .display("Address Type")
             .meaning("ADDRESS_TYPE")

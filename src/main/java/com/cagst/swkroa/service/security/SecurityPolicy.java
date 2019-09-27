@@ -1,13 +1,11 @@
 package com.cagst.swkroa.service.security;
 
-import java.io.Serializable;
-
+import com.cagst.swkroa.service.SwkroaBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
  * Represents a Security Policy defined in the system.
@@ -24,42 +22,46 @@ import lombok.experimental.Accessors;
     "active",
     "updatedCount"
 })
-@Value
-@Accessors(fluent = true)
-@Builder(toBuilder = true)
-@JsonDeserialize(builder = SecurityPolicy.SecurityPolicyBuilder.class)
-public class SecurityPolicy implements Serializable {
-    public static final SecurityPolicy DEFAULT_SECURITY_POLICY = SecurityPolicy.builder()
+@JsonDeserialize(builder = SecurityPolicy.Builder.class)
+@Value.Immutable(copy = false)
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+public interface SecurityPolicy extends SwkroaBase {
+    public static final SecurityPolicy DEFAULT_SECURITY_POLICY = new SecurityPolicy.Builder()
         .name("Default")
-        .maxAttempts(5)
-        .timeoutInMinutes(15)
-        .expiryInDays(90)
-        .lockedInMinutes(7 * 24 * 60)
-        .active(true)
-        .updateCount(0)
         .build();
 
     @JsonProperty("securityPolicyId")
-    private long securityPolicyId;
+    @Nullable
+    @Value.Auxiliary
+    Long securityPolicyId();
 
     @JsonProperty("name")
-    private String name;
+    String name();
 
     @JsonProperty("maxAttempts")
-    private int maxAttempts;
+    @Value.Default
+    default int maxAttempts() {
+        return 5;
+    }
 
     @JsonProperty("timeoutInMinutes")
-    private int timeoutInMinutes;
+    @Value.Default
+    default int timeoutInMinutes() {
+        return 15;
+    }
 
     @JsonProperty("expiryInDays")
-    private int expiryInDays;
+    @Value.Default
+    default int expiryInDays() {
+        return 90;
+    }
 
     @JsonProperty("lockedInMinutes")
-    private int lockedInMinutes;
+    @Value.Default
+    default int lockedInMinutes() {
+        return 7 * 24 * 60;
+    }
 
-    @JsonProperty("active")
-    private boolean active;
-
-    @JsonProperty("updateCount")
-    private long updateCount;
+    // static inner Builder class extends generated or yet-to-be generated Builder
+    class Builder extends ImmutableSecurityPolicy.Builder {}
 }

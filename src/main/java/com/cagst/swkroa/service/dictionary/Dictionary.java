@@ -1,17 +1,13 @@
 package com.cagst.swkroa.service.dictionary;
 
+import com.cagst.swkroa.service.SwkroaBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
-/**
- * Represents a Dictionary.
- *
- * @author Craig Gaskill
- */
+@JsonDeserialize(builder = Dictionary.Builder.class)
 @JsonPropertyOrder({
     "dictionaryId",
     "display",
@@ -19,25 +15,20 @@ import lombok.experimental.Accessors;
     "active",
     "updateCount"
 })
-@Value
-@Accessors(fluent = true)
-@Builder(toBuilder = true)
-@JsonDeserialize(builder = Dictionary.DictionaryBuilder.class)
-public class Dictionary {
+@Value.Immutable(copy = false)
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+public interface Dictionary extends SwkroaBase {
+  @Nullable
+  @Value.Auxiliary
   @JsonProperty("dictionaryId")
-  private Long dictionaryId;
+  Long dictionaryId();
 
   @JsonProperty("display")
-  private String display;
+  String display();
 
   @JsonProperty("meaning")
-  private String meaning;
+  String meaning();
 
-  @JsonProperty("active")
-  @Builder.Default
-  private boolean active = true;
-
-  @JsonProperty("updateCount")
-  @Builder.Default
-  private long updateCount = 0L;
+  // static inner Builder class extends generated or yet-to-be generated Builder
+  class Builder extends ImmutableDictionary.Builder {}
 }

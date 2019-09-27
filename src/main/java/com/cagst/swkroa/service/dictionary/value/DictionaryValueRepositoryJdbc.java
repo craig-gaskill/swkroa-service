@@ -107,7 +107,8 @@ import reactor.core.publisher.Mono;
                 throw new IncorrectResultSizeDataAccessException(1, cnt);
             }
 
-            return Mono.just(dv.toBuilder()
+            return Mono.just(new DictionaryValue.Builder()
+                .from(dv)
                 .dictionaryValueId(keyHolder.getKey().longValue())
                 .build());
         });
@@ -127,7 +128,8 @@ import reactor.core.publisher.Mono;
                 DictionaryValueMapper.mapForUpdate(userId, dv));
 
             if (cnt == 1) {
-                return Mono.just(dv.toBuilder()
+                return Mono.just(new DictionaryValue.Builder()
+                    .from(dv)
                     .updateCount(dv.updateCount() + 1)
                     .build());
             } else if (cnt == 0) {

@@ -26,7 +26,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
   @Override
   public DictionaryValue mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return DictionaryValue.builder()
+    return new DictionaryValue.Builder()
         .dictionaryValueId(rs.getLong(DICTIONARY_VALUE_ID))
         .display(rs.getString(DISPLAY))
         .meaning(rs.getString(MEANING))

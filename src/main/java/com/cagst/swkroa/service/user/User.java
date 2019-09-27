@@ -2,12 +2,12 @@ package com.cagst.swkroa.service.user;
 
 import java.time.LocalDateTime;
 
+import com.cagst.swkroa.service.SwkroaBase;
 import com.cagst.swkroa.service.person.Person;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
  * Representation of a User.
@@ -28,43 +28,52 @@ import lombok.experimental.Accessors;
     "active",
     "updateCount"
 })
-@Value
-@Accessors(fluent = true)
-@Builder(toBuilder = true)
-public class User {
+@Value.Immutable(copy = false)
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+public interface User extends SwkroaBase {
   @JsonProperty("userId")
-  private Long userId;
+  @Nullable
+  @Value.Auxiliary
+  Long userId();
 
   @JsonProperty("person")
-  private Person person;
+  Person person();
 
   @JsonProperty("username")
-  private String username;
+  String username();
 
   @JsonProperty("userType")
-  private UserType userType;
+  @Value.Default
+  default UserType userType() {
+    return UserType.STAFF;
+  }
 
   @JsonProperty("lastLoginDateTime")
-  private LocalDateTime lastLoginDateTime;
+  @Nullable
+  LocalDateTime lastLoginDateTime();
 
   @JsonProperty("lastLoginIp")
-  private String lastLoginIp;
+  @Nullable
+  String lastLoginIp();
 
   @JsonProperty("temporary")
-  private boolean temporary;
+  @Value.Default
+  default boolean temporary() {
+    return true;
+  }
 
   @JsonProperty("lockedDateTime")
-  private LocalDateTime lockedDateTime;
+  @Nullable
+  LocalDateTime lockedDateTime();
 
   @JsonProperty("expireDateTime")
-  private LocalDateTime expiredDateTime;
+  @Nullable
+  LocalDateTime expiredDateTime();
 
   @JsonProperty("changedDateTime")
-  private LocalDateTime changedDateTime;
+  @Nullable
+  LocalDateTime changedDateTime();
 
-  @JsonProperty("active")
-  private boolean active;
-
-  @JsonProperty("updateCount")
-  private long updateCount;
+  // static inner Builder class extends generated or yet-to-be generated Builder
+  class Builder extends ImmutableUser.Builder {}
 }

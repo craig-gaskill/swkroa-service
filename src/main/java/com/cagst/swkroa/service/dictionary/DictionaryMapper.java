@@ -20,7 +20,7 @@ import org.springframework.jdbc.core.RowMapper;
 
   @Override
   public Dictionary mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return Dictionary.builder()
+    return new Dictionary.Builder()
         .dictionaryId(rs.getLong(DICTIONARY_ID))
         .display(rs.getString(DISPLAY))
         .meaning(rs.getString(MEANING))

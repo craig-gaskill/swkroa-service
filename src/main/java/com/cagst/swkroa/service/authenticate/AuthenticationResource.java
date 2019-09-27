@@ -87,9 +87,11 @@ public class AuthenticationResource {
             return Mono.just(generateResponse(LoginStatus.VALID, user.userId(), user.temporary()));
           }
         })
-        .defaultIfEmpty(new ResponseEntity<>(LoginResponse.builder()
-            .loginStatus(LoginStatus.INVALID)
-            .build(), HttpStatus.UNAUTHORIZED)
+        .defaultIfEmpty(
+            new ResponseEntity<>(
+                new LoginResponse.Builder().loginStatus(LoginStatus.INVALID).build(),
+                HttpStatus.UNAUTHORIZED
+            )
         );
   }
 
@@ -103,7 +105,7 @@ public class AuthenticationResource {
         .map(securityContext -> Long.valueOf(securityContext.getAuthentication().getPrincipal().toString()))
         .flatMap(userId -> tokenRepository.findTokenByIdent(userId, refreshToken)
             .map(token -> {
-              tokenRepository.updateToken(userId, token.toBuilder().used(true).build());
+              tokenRepository.updateToken(userId, new Token.Builder().from(token).used(true).build());
                 return generateResponse(LoginStatus.VALID, userId, false);
             })
             .defaultIfEmpty(generateResponse(LoginStatus.INVALID, null, null))
@@ -115,12 +117,12 @@ public class AuthenticationResource {
       case DISABLED:
       case LOCKED:
       case EXPIRED:
-        return new ResponseEntity<>(LoginResponse.builder().loginStatus(loginStatus).build(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new LoginResponse.Builder().loginStatus(loginStatus).build(), HttpStatus.UNAUTHORIZED);
 
       case VALID: {
         OffsetDateTime expiryDateTime = OffsetDateTime.now().plusMinutes(ACCESS_EXPIRY_IN_MINUTES);
 
-        Token refreshToken = Token.builder()
+        Token refreshToken = new Token.Builder()
             .tokenIdent(UUID.randomUUID())
             .userId(userId)
             .expiryDateTime(expiryDateTime.plusMinutes(REFRESH_EXPIRY_IN_MINUTES))
@@ -128,7 +130,7 @@ public class AuthenticationResource {
 
         tokenRepository.insertToken(userId, refreshToken);
 
-        return ResponseEntity.ok(LoginResponse.builder()
+        return ResponseEntity.ok(new LoginResponse.Builder()
             .loginStatus(BooleanUtils.toBoolean(temporary) ? LoginStatus.TEMPORARY : LoginStatus.VALID)
             .accessToken(jwtService.generateAccessToken(userId, expiryDateTime))
             .refreshToken(refreshToken.tokenIdent().toString())
@@ -136,7 +138,7 @@ public class AuthenticationResource {
       }
 
       default:
-        return new ResponseEntity<>(LoginResponse.builder().loginStatus(LoginStatus.INVALID).build(), HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(new LoginResponse.Builder().loginStatus(LoginStatus.INVALID).build(), HttpStatus.UNAUTHORIZED);
     }
   }
 }

@@ -30,10 +30,9 @@ import org.springframework.jdbc.core.RowMapper;
   private static final String ACTIVE_IND   = "active_ind";
   private static final String UPDT_CNT     = "updt_cnt";
 
-
   @Override
   public UserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return UserEntity.builder()
+    return new UserEntity.Builder()
         .userId(rs.getLong(USER_ID))
         .personId(rs.getLong(PERSON_ID))
         .username(rs.getString(USERNAME))

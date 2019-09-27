@@ -62,7 +62,7 @@ public class SecurityServiceImpl implements SecurityService {
   @Override
   public SecurityPolicy getDefaultSecurityPolicy() {
     if (null == defaultSecurityPolicy) {
-      defaultSecurityPolicy = SecurityPolicy.builder()
+      defaultSecurityPolicy = new SecurityPolicy.Builder()
           .name("Default")
           .maxAttempts(getMaximumAttempts())
           .timeoutInMinutes(getTimeoutInMinutes())

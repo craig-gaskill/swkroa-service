@@ -102,7 +102,7 @@ class DictionaryValueRepositoryJdbcTest extends BaseTestRepository {
                   () -> assertEquals(3, dictionaryValues.size(), "has the correct number of values"))
           );
 
-      DictionaryValue pager = DictionaryValue.builder().meaning("PAGER").display("Pager").build();
+      DictionaryValue pager = new DictionaryValue.Builder().meaning("PAGER").display("Pager").build();
 
       repo.insertDictionaryValue(1L, 2L, Mono.just(pager))
           .subscribe(value ->
@@ -131,7 +131,7 @@ class DictionaryValueRepositoryJdbcTest extends BaseTestRepository {
       Optional<DictionaryValue> dv1 = repo.getDictionaryValueById(DictionaryType.PHONE_TYPE, 3L)
           .blockOptional();
 
-      DictionaryValue dv = dv1.get().toBuilder().display("Home / Residence").build();
+      DictionaryValue dv = new DictionaryValue.Builder().from(dv1.get()).display("Home / Residence").build();
 
       repo.updateDictionaryValue(1L, Mono.just(dv))
           .subscribe(value ->
@@ -149,7 +149,7 @@ class DictionaryValueRepositoryJdbcTest extends BaseTestRepository {
       Optional<DictionaryValue> dv1 = repo.getDictionaryValueById(DictionaryType.PHONE_TYPE, 3L)
           .blockOptional();
 
-      DictionaryValue dv = dv1.get().toBuilder().display("Home / Residence").updateCount(dv1.get().updateCount() + 1).build();
+      DictionaryValue dv = new DictionaryValue.Builder().from(dv1.get()).display("Home / Residence").updateCount(dv1.get().updateCount() + 1).build();
 
       assertThrows(OptimisticLockingFailureException.class, () -> repo.updateDictionaryValue(1L, Mono.just(dv))
           .subscribe(value -> fail())

@@ -2,31 +2,49 @@ package com.cagst.swkroa.service.user;
 
 import java.time.LocalDateTime;
 
-import lombok.Builder;
-import lombok.Value;
-import lombok.experimental.Accessors;
+import com.cagst.swkroa.service.SwkroaBase;
+import org.immutables.value.Value;
+import org.springframework.lang.Nullable;
 
 /**
  * Database representation of a User.
  *
  * @author Craig Gaskill
  */
-@Value
-@Accessors(fluent = true)
-@Builder(toBuilder = true)
-public class UserEntity {
-  private Long userId;
-  private Long personId;
-  private String username;
-  private String password;
-  private UserType userType;
-  private LocalDateTime lastLoginDateTime;
-  private String lastLoginIp;
-  private long loginAttempts;
-  private boolean temporary;
-  private LocalDateTime lockedDateTime;
-  private LocalDateTime expiredDateTime;
-  private LocalDateTime changedDateTime;
-  private boolean active;
-  private long updateCount;
+@Value.Immutable(copy = false)
+@Value.Style(visibility = Value.Style.ImplementationVisibility.PACKAGE, overshadowImplementation = true)
+/* package */ interface UserEntity extends SwkroaBase {
+  Long userId();
+
+  Long personId();
+
+  String username();
+
+  @Value.Redacted
+  String password();
+
+  UserType userType();
+
+  @Nullable
+  LocalDateTime lastLoginDateTime();
+
+  @Nullable
+  String lastLoginIp();
+
+  long loginAttempts();
+
+  boolean temporary();
+
+  @Nullable
+  LocalDateTime lockedDateTime();
+
+  @Nullable
+  LocalDateTime expiredDateTime();
+
+  @Nullable
+  LocalDateTime changedDateTime();
+
+  // static inner Builder class extends generated or yet-to-be generated Builder
+  class Builder extends ImmutableUserEntity.Builder {}
+
 }

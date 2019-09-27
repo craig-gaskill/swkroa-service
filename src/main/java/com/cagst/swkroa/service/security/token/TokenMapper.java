@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
   @Override
   public Token mapRow(ResultSet rs, int rowNum) throws SQLException {
-    return Token.builder()
+    return new Token.Builder()
         .tokenId(rs.getLong(TOKEN_ID))
         .tokenIdent(UuidAdapter.convert(rs.getString(TOKEN_IDENT).getBytes()))
         .userId(rs.getLong(USER_ID))

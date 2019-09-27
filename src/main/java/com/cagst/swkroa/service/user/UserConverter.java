@@ -12,7 +12,7 @@ import org.springframework.lang.Nullable;
 public abstract class UserConverter {
     @NonNull
     public static User convert(@NonNull UserEntity entity, @Nullable Person person) {
-        return User.builder()
+        return new User.Builder()
             .userId(entity.userId())
             .person(person)
             .username(entity.username())
@@ -30,7 +30,7 @@ public abstract class UserConverter {
 
     @NonNull
     public static UserEntity convert(@NonNull User user) {
-        return UserEntity.builder()
+        return new UserEntity.Builder()
             .userId(user.userId())
             .personId(user.person() != null ? user.person().personId() : null)
             .username(user.username())

@@ -55,12 +55,12 @@ class DictionaryValueServiceImplTest {
             @Test
             @DisplayName("should return a populated collection when found")
             void testFound() {
-                DictionaryValue v1 = DictionaryValue.builder()
+                DictionaryValue v1 = new DictionaryValue.Builder()
                     .dictionaryValueId(1L)
                     .display("Home")
                     .meaning("HOME")
                     .build();
-                DictionaryValue v2 = DictionaryValue.builder()
+                DictionaryValue v2 = new DictionaryValue.Builder()
                     .dictionaryValueId(2L)
                     .display("Work")
                     .meaning("WORK")
@@ -91,12 +91,12 @@ class DictionaryValueServiceImplTest {
         @Test
         @DisplayName("should insert the dictionary value")
         void testInsert() {
-            DictionaryValue newValue = DictionaryValue.builder()
+            DictionaryValue newValue = new DictionaryValue.Builder()
                 .display("New")
                 .meaning("NEW")
                 .build();
 
-            DictionaryValue insertedValue = newValue.toBuilder().dictionaryValueId(101L).build();
+            DictionaryValue insertedValue = new DictionaryValue.Builder().from(newValue).dictionaryValueId(101L).build();
             when(dictionaryValueRepository.insertDictionaryValue(anyLong(), anyLong(), eq(Mono.just(newValue))))
                 .thenReturn(Mono.just(insertedValue));
 

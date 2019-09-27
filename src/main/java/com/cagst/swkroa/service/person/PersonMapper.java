@@ -43,7 +43,7 @@ public final class PersonMapper implements RowMapper<Person> {
       }
     }
 
-    return Person.builder()
+    return new Person.Builder()
         .personId(rs.getLong(PERSON_ID))
         .titleCd(titleCd > 0 ? titleCd : null)
         .firstName(rs.getString(NAME_FIRST))

@@ -55,7 +55,7 @@ import java.util.Date;
 
     String subject = decodedJWT.getSubject();
     if (StringUtils.isNumeric(subject)) {
-      return Long.valueOf(subject);
+      return Long.parseLong(subject);
     } else {
       return 0;
     }

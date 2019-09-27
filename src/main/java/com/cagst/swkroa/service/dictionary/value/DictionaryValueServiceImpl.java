@@ -84,7 +84,7 @@ import reactor.core.publisher.Mono;
 
         return dictionaryValueRepository.getDictionaryValueById(dictionaryType, dictionaryValueId)
             .flatMap(dv -> {
-                dv = dv.toBuilder().active(false).build();
+                dv = new DictionaryValue.Builder().from(dv).active(false).build();
                 return dictionaryValueRepository.updateDictionaryValue(userId, Mono.just(dv)).then();
             });
     }
